@@ -29,3 +29,7 @@ next-env.d.ts
 # test artifacts
 docs/test-results/*.json
 docs/test-results/*.md
+
+# local reference stack
+local-version/.venv/
+local-version/vector_store/

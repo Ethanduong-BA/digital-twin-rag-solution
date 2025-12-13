@@ -35,6 +35,7 @@ Key design decisions, risks, and rollback plans are captured in [MIGRATION_PLAN.
 | [scripts/upsert-data.ts](scripts/upsert-data.ts) | CLI to push raw text + metadata to Upstash Vector (auto embeddings) |
 | [scripts/test-queries.ts](scripts/test-queries.ts) | Automated RAG testing harness with 16 diverse prompts |
 | [docs/](docs) | Testing summaries, future performance reports, and architecture notes |
+| [local-version/](local-version) | Week 2 FastAPI + Ollama + ChromaDB snapshot with parity dataset |
 | [MIGRATION_PLAN.md](MIGRATION_PLAN.md) | AI-assisted migration blueprint |
 | [WEEK3_COMPLETION_PLAN.md](WEEK3_COMPLETION_PLAN.md) | Day-by-day execution plan |
 
@@ -61,9 +62,9 @@ Visit `http://localhost:3000` and ask cooking, nutrition, or cultural questions.
 
 ### 2. Local Reference Version (Week 2, upcoming `/local-version`)
 
-1. Install Python, FastAPI, ChromaDB, and Ollama (nomic-embed-text + llama3 models).
-2. Run the legacy embedding script to generate vectors locally.
-3. Launch the FastAPI endpoint and UI client (Streamlit/React).
+1. Follow the dedicated instructions in [local-version/README.md](local-version/README.md).
+2. Seed ChromaDB with `python backend/seed_data.py` and run `uvicorn backend.main:app --reload`.
+3. Keep Ollama running with `nomic-embed-text` + `llama3` pulled locally.
 4. Compare latency, relevance, and cost tradeoffs with the new cloud implementation.
 
 ## Environment Variables
@@ -143,3 +144,4 @@ See full transcripts and latency numbers inside [docs/test-results/run-2025-12-1
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) – component breakdown and reliability notes
 - [docs/TESTING_RESULTS.md](docs/TESTING_RESULTS.md) – testing methodology, coverage matrix, and latest performance snapshot
 - [docs/PERFORMANCE_COMPARISON.md](docs/PERFORMANCE_COMPARISON.md) – quantitative latency and reliability improvements vs Week 2
+- [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md) – branching, tagging, and PR checklist for the migration deliverable
