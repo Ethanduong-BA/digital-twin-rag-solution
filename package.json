@@ -5,7 +5,6 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "lint": "eslint .",
     "start": "next start",
     "upsert-data": "tsx scripts/upsert-data.ts",
     "test-queries": "tsx scripts/test-queries.ts"
