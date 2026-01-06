@@ -2,7 +2,16 @@
 
 This document captures how v0.dev was used during development and what was modified afterward.
 
-> Fill in the **placeholders** below before final submission.
+- Deployment 
+![alt text](image.png)
+
+- Website
+![alt text](image-1.png)
+
+- Analytics
+![alt text](image-2.png)
+
+- Link: https://ragfood-git-cloud-migration-anirajs-projects-27ad65b9.vercel.app/
 
 ## What v0 Generated
 

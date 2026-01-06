@@ -162,3 +162,7 @@ See full transcripts and latency numbers inside [docs/test-results/run-2025-12-1
 - [docs/TESTING_RESULTS.md](docs/TESTING_RESULTS.md) – testing methodology, coverage matrix, and latest performance snapshot
 - [docs/PERFORMANCE_COMPARISON.md](docs/PERFORMANCE_COMPARISON.md) – quantitative latency and reliability improvements vs Week 2
 - [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md) – branching, tagging, and PR checklist for the migration deliverable
+
+
+## Project URL
+- Link: https://ragfood-git-cloud-migration-anirajs-projects-27ad65b9.vercel.app/
