@@ -9,10 +9,16 @@ Browser (Next.js UI)
 Server Actions (app/actions.ts)
         ├─> Upstash Vector `/query-data` (auto-embedding, metadata)
         ├─> Context builder (document + metadata stitching)
-        └─> Groq Chat Completions (LLaMA 3.1 8B Instant)
+        └─> Groq Chat Completions (LLaMA 3.1 8B Instant / LLaMA 3.3 70B Versatile)
                 │
                 ▼
          Answer + source cards streamed to UI
+
+Analytics (optional)
+        │
+        ▼
+Dashboard (`/analytics`) and JSON API (`/api/analytics`)
+        └─> Upstash Redis (if configured) with in-memory fallback
 ```
 
 ## Components
@@ -29,14 +35,15 @@ Server Actions (app/actions.ts)
 | Service | Purpose | Notes |
 | --- | --- | --- |
 | Vercel | Hosts Next.js app; provides environment management | `pnpm dev` for local, `vercel` for deploy |
-| Upstash Vector | Storage + semantic search, using built-in `mixedbread-ai/mxbai-embed-large-v1` | Auto-embeds both documents and queries; `topK=5` |
-| Groq Cloud | LLM inference (LLaMA 3.1 8B Instant) | High throughput, supports JSON schema-compatible responses |
+| Upstash Vector | Storage + semantic search, using built-in `mixedbread-ai/mxbai-embed-large-v1` | Auto-embeds both documents and queries; fetches more results and shows top sources in UI |
+| Groq Cloud | LLM inference | Model-selectable (8B fast / 70B higher quality) |
+| Upstash Redis (optional) | Analytics persistence for `/analytics` | If not configured or unreachable, analytics falls back to in-memory storage |
 
 ## Data Lifecycle
 
 1. Edit [data/food_data.json](../data/food_data.json) to add narratives, nutrition, cultural metadata.
 2. Run `pnpm upsert-data` to send raw text + metadata to Upstash. Auto embeddings remove the need for external models.
-3. When a user asks a question, `ragQuery()` sends the text directly to Upstash (`data` field). Upstash embeds + retrieves similar documents.
+3. When a user asks a question, `ragQuery()` (single-turn) or `ragChat()` (multi-turn) sends the text to Upstash (`data` field). Upstash embeds + retrieves similar documents.
 4. Retrieved metadata is stitched into a contextual prompt before calling Groq.
 5. UI renders the final answer plus the supporting sources.
 
@@ -46,6 +53,7 @@ Server Actions (app/actions.ts)
 - **Exponential backoff:** Shared `fetchWithRetry` helper retries Upstash + Groq when network/transient errors occur.
 - **Empty result handling:** Users receive a graceful fallback message when no documents match the query.
 - **CLI testing:** `pnpm test-queries` throttles and retries to surface regressions before deployment.
+- **Analytics hardening:** If Redis is misconfigured/unreachable, analytics avoids crashing and uses an in-memory fallback.
 
 ## Future Enhancements
 

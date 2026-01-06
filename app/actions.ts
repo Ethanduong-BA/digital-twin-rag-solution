@@ -1,5 +1,7 @@
 "use server"
 
+import { hashQuery, trackRagEvent } from "@/lib/analytics"
+
 export interface VectorResult {
   id: string
   score: number
@@ -435,6 +437,11 @@ async function queryGroqChatAnswer(params: {
 }
 
 export async function ragQuery(question: string): Promise<RAGResponse> {
+  const startedAtMs = Date.now()
+  let vectorMs: number | undefined
+  let groqMs: number | undefined
+  let queryHash = ""
+
   try {
     const normalizedQuestion = normalizeQuestion(question)
     if (normalizedQuestion.length < MIN_QUESTION_LENGTH) {
@@ -444,7 +451,11 @@ export async function ragQuery(question: string): Promise<RAGResponse> {
       throw new Error("Your question is too long. Please shorten it and try again.")
     }
 
+    queryHash = hashQuery(normalizedQuestion)
+
+    const vectorStart = Date.now()
     const vectorResults = await queryUpstashVector(normalizedQuestion)
+    vectorMs = Date.now() - vectorStart
     const selectedResults = vectorResults.slice(0, SOURCES_TO_RETURN)
 
     if (selectedResults.length === 0) {
@@ -455,52 +466,19 @@ export async function ragQuery(question: string): Promise<RAGResponse> {
     }
 
     const context = buildContextFromVectorResults(selectedResults)
+
+    const groqStart = Date.now()
     const answer = await queryGroqAnswer(normalizedQuestion, context)
+    groqMs = Date.now() - groqStart
 
-    return {
-      sources: selectedResults.map((r: any) => ({
-        id: r.id,
-        score: r.score,
-        data: r.data,
-        metadata: r.metadata,
-      })),
-      answer,
-    }
-  } catch (error) {
-    throw new Error(error instanceof Error ? error.message : "Failed to process your question. Please try again.")
-  }
-}
-
-export async function ragChat(request: RAGChatRequest): Promise<RAGResponse> {
-  try {
-    const normalizedQuestion = normalizeQuestion(request.question)
-    if (normalizedQuestion.length < MIN_QUESTION_LENGTH) {
-      throw new Error("Please enter a question.")
-    }
-    if (normalizedQuestion.length > MAX_QUESTION_LENGTH) {
-      throw new Error("Your question is too long. Please shorten it and try again.")
-    }
-
-    const model = pickAllowedGroqModel(request.model)
-    const sanitizedMessages = sanitizeChatMessages(request.messages)
-
-    const vectorResults = await queryUpstashVector(normalizedQuestion)
-    const selectedResults = vectorResults.slice(0, SOURCES_TO_RETURN)
-
-    if (selectedResults.length === 0) {
-      return {
-        sources: [],
-        answer:
-          "I couldn't find relevant entries in the food knowledge base for that query. Please try rephrasing or expanding the description.",
-      }
-    }
-
-    const context = buildContextFromVectorResults(selectedResults)
-    const answer = await queryGroqChatAnswer({
-      model,
-      question: normalizedQuestion,
-      context,
-      messages: sanitizedMessages,
+    void trackRagEvent({
+      status: "success",
+      model: DEFAULT_GROQ_MODEL,
+      queryHash,
+      querySample: normalizedQuestion,
+      totalMs: Date.now() - startedAtMs,
+      vectorMs,
+      groqMs,
     })
 
     return {
@@ -513,6 +491,96 @@ export async function ragChat(request: RAGChatRequest): Promise<RAGResponse> {
       answer,
     }
   } catch (error) {
+    void trackRagEvent({
+      status: "error",
+      model: DEFAULT_GROQ_MODEL,
+      queryHash,
+      querySample: typeof question === "string" ? question : undefined,
+      totalMs: Date.now() - startedAtMs,
+      vectorMs,
+      groqMs,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    })
+    throw new Error(error instanceof Error ? error.message : "Failed to process your question. Please try again.")
+  }
+}
+
+export async function ragChat(request: RAGChatRequest): Promise<RAGResponse> {
+  const startedAtMs = Date.now()
+  let vectorMs: number | undefined
+  let groqMs: number | undefined
+  let queryHash = ""
+  let selectedModel = DEFAULT_GROQ_MODEL
+
+  try {
+    const normalizedQuestion = normalizeQuestion(request.question)
+    if (normalizedQuestion.length < MIN_QUESTION_LENGTH) {
+      throw new Error("Please enter a question.")
+    }
+    if (normalizedQuestion.length > MAX_QUESTION_LENGTH) {
+      throw new Error("Your question is too long. Please shorten it and try again.")
+    }
+
+    const model = pickAllowedGroqModel(request.model)
+    selectedModel = model
+    const sanitizedMessages = sanitizeChatMessages(request.messages)
+
+    queryHash = hashQuery(normalizedQuestion)
+
+    const vectorStart = Date.now()
+    const vectorResults = await queryUpstashVector(normalizedQuestion)
+    vectorMs = Date.now() - vectorStart
+    const selectedResults = vectorResults.slice(0, SOURCES_TO_RETURN)
+
+    if (selectedResults.length === 0) {
+      return {
+        sources: [],
+        answer:
+          "I couldn't find relevant entries in the food knowledge base for that query. Please try rephrasing or expanding the description.",
+      }
+    }
+
+    const context = buildContextFromVectorResults(selectedResults)
+
+    const groqStart = Date.now()
+    const answer = await queryGroqChatAnswer({
+      model,
+      question: normalizedQuestion,
+      context,
+      messages: sanitizedMessages,
+    })
+    groqMs = Date.now() - groqStart
+
+    void trackRagEvent({
+      status: "success",
+      model,
+      queryHash,
+      querySample: normalizedQuestion,
+      totalMs: Date.now() - startedAtMs,
+      vectorMs,
+      groqMs,
+    })
+
+    return {
+      sources: selectedResults.map((r: any) => ({
+        id: r.id,
+        score: r.score,
+        data: r.data,
+        metadata: r.metadata,
+      })),
+      answer,
+    }
+  } catch (error) {
+    void trackRagEvent({
+      status: "error",
+      model: selectedModel,
+      queryHash,
+      querySample: typeof request?.question === "string" ? request.question : undefined,
+      totalMs: Date.now() - startedAtMs,
+      vectorMs,
+      groqMs,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    })
     throw new Error(error instanceof Error ? error.message : "Failed to process your question. Please try again.")
   }
 }
