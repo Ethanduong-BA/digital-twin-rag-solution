@@ -5,7 +5,6 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "lint": "eslint .",
     "start": "next start",
     "upsert-data": "tsx scripts/upsert-data.ts",
     "test-queries": "tsx scripts/test-queries.ts"
@@ -39,6 +38,7 @@
     "@radix-ui/react-toggle": "1.1.1",
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
+    "@upstash/redis": "^1.36.0",
     "@upstash/vector": "1.2.2",
     "@vercel/analytics": "latest",
     "autoprefixer": "^10.4.20",
