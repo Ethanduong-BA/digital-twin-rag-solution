@@ -48,7 +48,16 @@ Database: Neon Postgres (Conversations) & Upstash (Vector Memory).
 
 
 
-🚀 Key Documentation Links
+� Scripts
+
+**Upload to Upstash Vector Database:**
+```bash
+cd data-pipeline && npx ts-node scripts/upload-to-upstash.ts
+```
+
+
+
+�🚀 Key Documentation Links
 📖 [Read the PRD (Product Requirements Document)](./docs/prd.md)
 
 🤖 [AI Agent Instructions](./agents.md)
