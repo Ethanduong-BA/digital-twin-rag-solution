@@ -1,5 +1,4 @@
-# Digital Twin
-
+# Digital twin
 
 📂 Repository Structure
 This project follows a production-grade AI engineering architecture:
