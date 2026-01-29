@@ -1,14 +1,4 @@
-Digital Twin: Khoa (Ethan) Duong
-
-This repository contains the professional Digital Twin for Khoa (Ethan) Duong, a Junior Business Analyst and UX/UI Designer. This AI-powered agent is designed to represent my professional identity, showcase my dual expertise in design and analytics, and capture recruitment opportunities 24/7.
-
-🔗 Connect with Me
-
-LinkedIn: https://www.linkedin.com/in/khoa-duong-741545229/
-
-Portfolio: https://www.behance.net/khoadnggg
-
-Email: ethanduong59@gmail.com 
+# Digital Twin
 
 
 📂 Repository Structure
