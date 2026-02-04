@@ -19,6 +19,9 @@ yarn-error.log*
 # env files
 .env*
 
+# personal profile data
+data/profile.json
+
 # vercel
 .vercel
 

@@ -1,13 +1,8 @@
 {
   "servers": {
-    "food-search": {
+    "digital-twin": {
       "type": "http",
       "url": "http://localhost:3000/api/mcp"
-    },
-    "food-mcp-search": {
-      "type": "http",
-      "url": "https://ragfood-kohl.vercel.app/api/mcp"
     }
-
   }
 }

@@ -1,35 +1,44 @@
 import { createMcpHandler } from "mcp-handler";
-import { searchFood, searchFoodTool } from "@/lib/food-search";
+import {
+  searchProfile,
+  searchProfileTool,
+  getProfileSection,
+  getProfileSectionTool,
+  formatProfileResultsAsContext,
+} from "@/lib/profile-search";
 
 const handler = createMcpHandler(
   (server) => {
+    // ----- Profile Search Tool (Digital Twin) -----
     server.tool(
-      searchFoodTool.name,
-      searchFoodTool.description,
-      { query: searchFoodTool.schema.query, topK: searchFoodTool.schema.topK },
+      searchProfileTool.name,
+      searchProfileTool.description,
+      { query: searchProfileTool.schema.query, topK: searchProfileTool.schema.topK },
       async ({ query, topK }) => {
-        const results = await searchFood({ query, topK: topK ?? 5 });
+        const results = await searchProfile({ query, topK: topK ?? 5 });
 
         const text = results.length
           ? results
               .map((r, i) => {
-                const name = r.metadata?.name ?? r.id;
-                const cuisine = r.metadata?.cuisine ?? "";
-                const tags = r.metadata?.dietary_tags?.join(", ") || "none";
-                const description = r.data ?? r.metadata?.description ?? "No description available";
-                const ingredients = r.metadata?.ingredients?.join(", ") || "Not listed";
-                const spiceLevel = r.metadata?.spice_level ?? "unknown";
-                const prepTime = r.metadata?.preparation_time ?? "unknown";
-                
-                return `${i + 1}. **${name}** (${cuisine}) — score ${r.score.toFixed(2)}
-   Spice Level: ${spiceLevel} | Prep Time: ${prepTime}
-   Tags: ${tags}
-   Ingredients: ${ingredients}
-   Description: ${description}`;
+                const type = r.metadata?.type ?? "info";
+                const score = r.score.toFixed(2);
+                return `${i + 1}. [${type.toUpperCase()}] (score: ${score})\n${r.data}`;
               })
               .join("\n\n---\n\n")
-          : "No matching dishes found.";
+          : "No matching profile information found.";
 
+        return { content: [{ type: "text", text }] };
+      }
+    );
+
+    // ----- Get Profile Section Tool (Digital Twin) -----
+    server.tool(
+      getProfileSectionTool.name,
+      getProfileSectionTool.description,
+      { section: getProfileSectionTool.schema.section },
+      async ({ section }) => {
+        const results = await getProfileSection({ section });
+        const text = formatProfileResultsAsContext(results);
         return { content: [{ type: "text", text }] };
       }
     );

@@ -7,6 +7,7 @@
     "dev": "next dev",
     "start": "next start",
     "upsert-data": "tsx scripts/upsert-data.ts",
+    "upsert-profile": "tsx scripts/upsert-profile.ts",
     "test-queries": "tsx scripts/test-queries.ts"
   },
   "dependencies": {
