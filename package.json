@@ -1,14 +1,13 @@
 {
-  "name": "my-v0-project",
+  "name": "digital-twin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "build": "next build",
     "dev": "next dev",
     "start": "next start",
-    "upsert-data": "tsx scripts/upsert-data.ts",
     "upsert-profile": "tsx scripts/upsert-profile.ts",
-    "test-queries": "tsx scripts/test-queries.ts"
+    "test-interview": "tsx scripts/test-interview.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

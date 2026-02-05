@@ -1,1 +1,0 @@
-use food-search mcp server for different food items.

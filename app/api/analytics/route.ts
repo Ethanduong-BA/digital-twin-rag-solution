@@ -1,18 +1,28 @@
 import { NextResponse } from "next/server"
+import { getInterviewAnalytics, clearInterviewAnalytics } from "@/lib/analytics"
 
-import { getAnalyticsSummary } from "@/lib/analytics"
-
-export async function GET(request: Request) {
-  const requiredToken = process.env.ANALYTICS_DASHBOARD_TOKEN
-  if (requiredToken) {
-    const url = new URL(request.url)
-    const tokenFromQuery = url.searchParams.get("token")
-    const tokenFromHeader = request.headers.get("x-analytics-token")
-    if (tokenFromQuery !== requiredToken && tokenFromHeader !== requiredToken) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+export async function GET() {
+  try {
+    const analytics = await getInterviewAnalytics()
+    return NextResponse.json(analytics)
+  } catch (error) {
+    console.error("[Analytics API] Error:", error)
+    return NextResponse.json(
+      { error: "Failed to fetch analytics" },
+      { status: 500 }
+    )
   }
+}
 
-  const summary = await getAnalyticsSummary()
-  return NextResponse.json(summary)
+export async function DELETE() {
+  try {
+    await clearInterviewAnalytics()
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("[Analytics API] Error clearing:", error)
+    return NextResponse.json(
+      { error: "Failed to clear analytics" },
+      { status: 500 }
+    )
+  }
 }

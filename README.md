@@ -1,168 +1,167 @@
-# Food RAG Cloud Migration
+# Digital Twin I (RAG Solution)
 
-[![Vercel Deployment](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/anirajs-projects-27ad65b9/v0-food-rag-web-app)
 [![Upstash Vector](https://img.shields.io/badge/Vector-Upstash-00C694?style=for-the-badge)](https://upstash.com/vector)
 [![Groq Cloud](https://img.shields.io/badge/LLM-Groq%20Cloud-FF6F3C?style=for-the-badge)](https://console.groq.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
 
-Production-ready Retrieval-Augmented Generation (RAG) assistant that migrated from a Week 2 local stack (Ollama + ChromaDB) to a Week 3 cloud stack (Upstash Vector + Groq API) with expanded food knowledge and rigorous testing.
+A **Digital Twin** — a personal AI agent capable of autonomously representing its creator (Aniraj Khadgi) in professional job interviews using RAG architecture and MCP integration.
 
-Week 4 upgrades add a more product-like experience: multi-turn chat, selectable Groq models, improved sources UX, and a lightweight analytics dashboard.
-
-## Cloud Migration Overview
+## Architecture Overview
 
 ```
-         Week 2 (Local)                                 Week 3 (Cloud)
-┌────────────────────────────┐               ┌───────────────────────────────┐
-│    FastAPI / Streamlit UI  │               │      Next.js 16 App Router     │
-│  + Ollama (LLM + embeds)   │               │  + Server Actions (ragQuery)   │
-│  + ChromaDB (local files)  │               │                               │
-└─────────────┬──────────────┘               └──────────────┬────────────────┘
-              │                                             │
-              ▼                                             ▼
-      Local GPU / Storage                          Upstash Vector Database
-                                                     (auto embeddings)
-                                                     │
-                                                     ▼
-                                                Groq LLaMA 3.1 8B
-
-                                     (optionally) Groq LLaMA 3.3 70B
+User/Recruiter ──► Interview Chat UI
+                        │
+                        ▼
+              ragInterview() Server Action
+                        │
+         ┌──────────────┴──────────────┐
+         ▼                              ▼
+  Upstash Vector                    Groq LLaMA 3.1
+  (profile search)                  (answer generation)
+         │                              │
+         └──────────────┬──────────────┘
+                        ▼
+            First-Person Answer + Sources
+                        
+              ──── MCP Integration ────
+                        
+  VS Code Copilot ──► search_profile / get_profile_section
+  Claude Desktop ──┘
 ```
 
-Key design decisions, risks, and rollback plans are captured in [MIGRATION_PLAN.md](MIGRATION_PLAN.md).
+## Features
+
+- **Interview Simulation UI**: Web-based chat interface for interview Q&A
+- **RAG-Powered Answers**: Responses grounded in professional profile data
+- **First-Person Persona**: Answers as "I" with authentic voice
+- **MCP Tools**: `search_profile` and `get_profile_section` for AI agent integration
+- **Source Citations**: See which profile sections were used for each answer
 
 ## Repository Layout
 
 | Path | Purpose |
 | --- | --- |
-| [app/](app) | Next.js App Router views and server actions (cloud version) |
-| [data/food_data.json](data/food_data.json) | 35-item enriched knowledge base with cultural + nutritional metadata |
-| [scripts/upsert-data.ts](scripts/upsert-data.ts) | CLI to push raw text + metadata to Upstash Vector (auto embeddings) |
-| [scripts/test-queries.ts](scripts/test-queries.ts) | Automated RAG testing harness with 16 diverse prompts |
-| [docs/](docs) | Testing summaries, future performance reports, and architecture notes |
-| [local-version/](local-version) | Week 2 FastAPI + Ollama + ChromaDB snapshot with parity dataset |
-| [MIGRATION_PLAN.md](MIGRATION_PLAN.md) | AI-assisted migration blueprint |
-| [WEEK3_COMPLETION_PLAN.md](WEEK3_COMPLETION_PLAN.md) | Day-by-day execution plan |
+| [app/](app) | Next.js App Router views and server actions |
+| [app/actions-interview.ts](app/actions-interview.ts) | Interview RAG server action with Digital Twin persona |
+| [app/api/[transport]/route.ts](app/api/[transport]/route.ts) | MCP server endpoint for profile tools |
+| [components/interview-chat.tsx](components/interview-chat.tsx) | Interview simulation chat UI |
+| [lib/profile-search.ts](lib/profile-search.ts) | Profile vector search with Zod schemas |
+| [data/profile.json](data/profile.json) | Professional profile data (experience, skills, projects, Q&A) |
+| [scripts/upsert-profile.ts](scripts/upsert-profile.ts) | CLI to embed profile data into Upstash Vector |
+| [scripts/test-interview.ts](scripts/test-interview.ts) | Automated interview testing harness |
+| [docs/DIGITAL_TWIN_PLAN.md](docs/DIGITAL_TWIN_PLAN.md) | 6-week implementation plan |
 
-> **Planned structure:** `/local-version` will store the Week 2 ChromaDB build, while `/cloud-version` (current root) houses the upgraded stack. Branch `cloud-migration` will track Week 3 work before merging to `main`.
-
-## Setup Instructions
-
-### 1. Cloud Version (Next.js + Upstash + Groq)
+## Quick Start
 
 ```bash
+# Install dependencies
 pnpm install
 
-# Populate/refresh the vector database
-pnpm upsert-data
+# Embed profile data into vector database
+pnpm upsert-profile
 
-# Run automated regression queries (optional but recommended)
-pnpm test-queries
+# Run automated interview tests (optional)
+pnpm test-interview
 
-# Start the app locally
+# Start the development server
 pnpm dev
 ```
 
-Visit `http://localhost:3000` and ask cooking, nutrition, or cultural questions. Server actions stream responses via Groq while citing Upstash documents.
-
-You can also view analytics at `http://localhost:3000/analytics`.
-
-### 2. Local Reference Version (Week 2, upcoming `/local-version`)
-
-1. Follow the dedicated instructions in [local-version/README.md](local-version/README.md).
-2. Seed ChromaDB with `python backend/seed_data.py` and run `uvicorn backend.main:app --reload`.
-3. Keep Ollama running with `nomic-embed-text` + `llama3` pulled locally.
-4. Compare latency, relevance, and cost tradeoffs with the new cloud implementation.
+Visit `http://localhost:3000` and start interviewing the Digital Twin!
 
 ## Environment Variables
 
-Create `.env.local` (and provide the same keys to Vercel) with:
+Create `.env.local` with:
 
 | Variable | Description |
 | --- | --- |
-| `UPSTASH_VECTOR_REST_URL` | REST endpoint for your Upstash Vector database |
+| `UPSTASH_VECTOR_REST_URL` | REST endpoint for Upstash Vector database |
 | `UPSTASH_VECTOR_REST_TOKEN` | Bearer token for Upstash Vector |
-| `GROQ_API_KEY` | Groq Cloud API key (LLaMA 3.1 8B Instant) |
-| `UPSTASH_REDIS_REST_URL` | (Optional) Upstash Redis REST URL for analytics persistence |
-| `UPSTASH_REDIS_REST_TOKEN` | (Optional) Upstash Redis REST token for analytics persistence |
-| `ANALYTICS_DASHBOARD_TOKEN` | (Optional) Protects `/api/analytics` (header `x-analytics-token` or query `?token=`) |
+| `GROQ_API_KEY` | Groq Cloud API key |
 
-> The CLI scripts load `.env.local` automatically via `dotenv`, so you can run upserts or tests outside the Next.js runtime.
+## MCP Integration
 
-## Local vs Cloud Comparison
+The project exposes MCP tools for AI agent integration:
 
-| Dimension | Local (Week 2) | Cloud (Week 3) |
-| --- | --- | --- |
-| Embeddings | Ollama nomic-embed-text (manual) | Upstash mixedbread (auto) |
-| Vector DB | ChromaDB on disk | Upstash Vector (managed) |
-| LLM | Ollama llama3 (GPU reliant) | Groq Cloud LLaMA 3.1 8B (serverless) |
-| Latency (avg) | ~7–10s (GPU availability) | 6.59s across 16 complex prompts |
-| Deployment | Local scripts | Vercel + server actions |
-| Cost | Hardware + electricity | Pay-as-you-go APIs with free tiers |
-| Reliability | Single machine | Managed, auto-scaled, retry-enabled |
+### Tools Available
 
-Performance data comes from the latest automated test run documented in [docs/TESTING_RESULTS.md](docs/TESTING_RESULTS.md).
+| Tool | Description |
+| --- | --- |
+| `search_profile` | Semantic search across professional profile |
+| `get_profile_section` | Retrieve specific section (summary, experience, skills, etc.) |
 
-## Enhanced Food Database
+### VS Code MCP Configuration
 
-- 35 entries across world cuisines, health-focused bowls, and comfort classics
-- Each record contains ≥75 word descriptions, cooking methods, nutrition callouts, dietary tags, allergens, spice level, cultural story, and prep time
-- Stored in [data/food_data.json](data/food_data.json) and upserted as raw text so Upstash handles embeddings internally
-
-Sample snippet:
+Add to `.vscode/mcp.json`:
 
 ```json
 {
-  "id": "food-010",
-  "name": "Nordic Cedar-Planked Salmon Bowl",
-  "cuisine": "Nordic",
-  "ingredients": ["salmon", "barley", "fennel", "lingonberries"],
-  "dietary_tags": ["pescatarian", "omega-rich"],
-  "nutritional_benefits": "Omega-3 fats from salmon support cardiovascular health..."
+  "servers": {
+    "digital-twin": {
+      "type": "sse",
+      "url": "http://localhost:3000/api/sse"
+    }
+  }
 }
 ```
 
-## Advanced Query Examples
+### Claude Desktop Configuration
 
-| Query | Expected Behavior | Example Source IDs |
-| --- | --- | --- |
-| "healthy Mediterranean options with grains and herbs" | Returns herb-heavy lentil tabbouleh and couscous salads with nutrient analysis | `food-011`, `food-027` |
-| "spicy vegetarian Asian dishes ready in under an hour" | Prioritizes masala dosa and bibimbap lite emphasizing fermentation + heat | `food-007`, `food-012` |
-| "omega-3 rich dinners with whole grains" | Highlights cedar-planked salmon and cha ca fish bowls with grain pairings | `food-010`, `food-029` |
-| "dishes that can be grilled tableside" | Surfaces cha ca, huli huli chicken, and jerk bowls with cultural notes | `food-029`, `food-021`, `food-025` |
+Add to `claude_desktop_config.json`:
 
-See full transcripts and latency numbers inside [docs/test-results/run-2025-12-12T07-02-49-472Z.md](docs/test-results/run-2025-12-12T07-02-49-472Z.md).
+```json
+{
+  "mcpServers": {
+    "digital-twin": {
+      "command": "npx",
+      "args": ["mcp-remote", "http://localhost:3000/api/sse"]
+    }
+  }
+}
+```
 
-> Note: `docs/test-results/` artifacts are generated by `pnpm test-queries` and are git-ignored. For submission/review, reference the latest run from [docs/TESTING_RESULTS.md](docs/TESTING_RESULTS.md) and attach the artifacts separately if required.
+## Profile Data Structure
 
-## Tooling & Scripts
+```
+data/profile.json
+├── personalInfo (name, title, location, work rights)
+├── professionalSummary (elevator pitch, unique value proposition)
+├── skills (software_development, business_analytics, technical, soft_skills)
+├── experience (roles, responsibilities, achievements, metrics)
+├── education (degrees, coursework)
+├── certifications (AWS, Docker, Terraform)
+├── projects (professional + personal)
+├── interview_qa (pre-crafted responses)
+├── preferences (role interests, culture fit)
+└── contact (email, LinkedIn, portfolio, GitHub)
+```
 
-- **Vector upload:** `pnpm upsert-data` (reads [data/food_data.json](data/food_data.json), pushes to Upstash with metadata)
-- **Regression testing:** `pnpm test-queries` (runs 16 prompts, retries rate-limited Groq calls, logs artifacts under [docs/test-results/](docs/test-results))
-- **Chat interface:** See [app/page.tsx](app/page.tsx) and [components/chat-interface.tsx](components/chat-interface.tsx) for UI + streaming logic
+## Example Interview Questions
 
-## Week 4 Evidence (Submission)
+| Question | Expected Topics |
+| --- | --- |
+| "Tell me about yourself" | Professional summary, dual expertise, location |
+| "What are your technical skills?" | React, Next.js, Python, SQL, analytics tools |
+| "Describe your experience at LIS Nepal" | B2B SaaS, 50K+ users, API improvements |
+| "What are your key achievements?" | 40% API improvement, 25% NPS increase |
+| "Tell me about your education" | Master's at USC, Bachelor's from Pokhara |
 
-- v0.dev workflow notes: [docs/V0_WORKFLOW.md](docs/V0_WORKFLOW.md)
-- Automated test evidence: [docs/TESTING_RESULTS.md](docs/TESTING_RESULTS.md)
-- Architecture notes: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+## Scripts
 
-## Troubleshooting
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Start development server |
+| `pnpm build` | Build for production |
+| `pnpm upsert-profile` | Embed profile.json into Upstash Vector |
+| `pnpm test-interview` | Run automated interview test suite |
 
-- **429 errors from Groq:** The server action now retries with exponential backoff. If you still see failures, reduce concurrent queries or request a higher TPM quota.
-- **No vectors returned:** Ensure `pnpm upsert-data` ran successfully and the Upstash credentials reference a *Vector* database (URL contains `vector`).
-- **Environment variables missing:** The app will throw a descriptive error if `UPSTASH_VECTOR_REST_URL`, `UPSTASH_VECTOR_REST_TOKEN`, or `GROQ_API_KEY` are absent. Verify `.env.local` and Vercel dashboard.
-- **Cross-origin warning in dev:** Next.js 16 may warn about `allowedDevOrigins`. Add your LAN IP to `next.config.mjs` if testing from other devices.
-- **Dataset edits:** After modifying [data/food_data.json](data/food_data.json), rerun `pnpm upsert-data` to keep Upstash in sync.
+## Documentation
 
-## Additional Documentation
+- [docs/DIGITAL_TWIN_PLAN.md](docs/DIGITAL_TWIN_PLAN.md) – 6-week implementation plan
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) – System architecture and components
+- [docs/mcp.md](docs/mcp.md) – MCP integration details
+- [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md) – Branching and PR guidelines
 
-- [MIGRATION_PLAN.md](MIGRATION_PLAN.md) – architecture evolution, risk mitigation, rollback strategy
-- [WEEK3_COMPLETION_PLAN.md](WEEK3_COMPLETION_PLAN.md) – execution plan with daily milestones
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) – component breakdown and reliability notes
-- [docs/TESTING_RESULTS.md](docs/TESTING_RESULTS.md) – testing methodology, coverage matrix, and latest performance snapshot
-- [docs/PERFORMANCE_COMPARISON.md](docs/PERFORMANCE_COMPARISON.md) – quantitative latency and reliability improvements vs Week 2
-- [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md) – branching, tagging, and PR checklist for the migration deliverable
+## Course Reference
 
-
-## Project URL
-- Link: https://ragfood-git-cloud-migration-anirajs-projects-27ad65b9.vercel.app/
+This project is part of the [Digital Twin I Course](https://www.ausbizconsulting.com.au/courses/digitaltwin-I) from ausbiz Consulting.

@@ -3,12 +3,13 @@
 import type React from "react"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Send, Loader2, Sparkles, Database, Copy, Share2, Check } from "lucide-react"
+import { Send, Loader2, User, Copy, Share2, Check, Briefcase, GraduationCap, Code, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ragChat, type ChatMessage, type RAGResponse, type VectorResult } from "@/app/actions"
+import { interviewChat, type ChatMessage, type InterviewResponse } from "@/app/actions-interview"
+import { type ProfileVectorResult } from "@/lib/profile-search"
 
 type AllowedModel = "llama-3.1-8b-instant" | "llama-3.3-70b-versatile"
 
@@ -16,39 +17,39 @@ type ChatMessageView = {
   id: string
   role: ChatMessage["role"]
   content: string
-  sources?: VectorResult[]
+  sources?: ProfileVectorResult[]
 }
 
-const EXAMPLE_QUERIES: Array<{ label: string; prompt: string }> = [
-  { label: "Spicy", prompt: "Recommend spicy vegetarian dishes that are ready in under an hour." },
-  { label: "Summer", prompt: "What are refreshing foods to eat in summer with herbs and citrus?" },
-  { label: "High-protein", prompt: "Suggest high-protein, low-carb meal prep ideas from the dataset." },
-  { label: "Seafood", prompt: "Give me pescatarian bowls with grilled elements and bright flavors." },
-  { label: "Dessert", prompt: "Which desserts have caramelized or burnt sugar notes?" },
+const INTERVIEW_QUESTIONS: Array<{ label: string; prompt: string; icon: React.ReactNode }> = [
+  { label: "Tell me about yourself", prompt: "Tell me about yourself and your professional background.", icon: <User className="w-4 h-4" /> },
+  { label: "Technical skills", prompt: "What are your key technical skills and how have you applied them?", icon: <Code className="w-4 h-4" /> },
+  { label: "Recent experience", prompt: "Can you walk me through your most recent work experience?", icon: <Briefcase className="w-4 h-4" /> },
+  { label: "Education", prompt: "Tell me about your educational background and what you learned.", icon: <GraduationCap className="w-4 h-4" /> },
+  { label: "Strengths", prompt: "What would you consider your greatest professional strengths?", icon: <MessageSquare className="w-4 h-4" /> },
 ]
 
-const CATEGORY_SUGGESTIONS: Array<{ title: string; items: Array<{ label: string; prompt: string }> }> = [
+const CATEGORY_QUESTIONS: Array<{ title: string; items: Array<{ label: string; prompt: string }> }> = [
   {
-    title: "Quick picks",
+    title: "Experience",
     items: [
-      { label: "Street food", prompt: "Street food dishes with smoky or charred flavors." },
-      { label: "Comfort", prompt: "Comfort foods featuring long-simmered stews." },
-      { label: "Fermented", prompt: "Fermented dishes with tangy profiles." },
+      { label: "Leadership", prompt: "Describe a time when you demonstrated leadership skills." },
+      { label: "Challenges", prompt: "Tell me about a challenging project you worked on and how you overcame obstacles." },
+      { label: "Achievements", prompt: "What are you most proud of in your career so far?" },
     ],
   },
   {
-    title: "Dietary",
+    title: "Technical",
     items: [
-      { label: "Vegan", prompt: "Anti-inflammatory vegan dishes that use turmeric or ginger." },
-      { label: "Mediterranean", prompt: "Healthy Mediterranean options with grains and herbs." },
-      { label: "Low-carb", prompt: "High-protein low-carb foods suitable for meal prep." },
+      { label: "Projects", prompt: "Tell me about a technical project you built from scratch." },
+      { label: "Problem-solving", prompt: "How do you approach debugging complex technical issues?" },
+      { label: "Learning", prompt: "How do you stay current with new technologies?" },
     ],
   },
   {
-    title: "Cooking method",
+    title: "Fit & Culture",
     items: [
-      { label: "Cast-iron", prompt: "Recipes relying on cast-iron cooking or skillets." },
-      { label: "Grilled", prompt: "Dishes that can be grilled outdoors with diners involved." },
+      { label: "Work style", prompt: "How would you describe your ideal work environment?" },
+      { label: "Collaboration", prompt: "How do you handle working with cross-functional teams?" },
     ],
   },
 ]
@@ -66,8 +67,6 @@ async function copyText(text: string): Promise<void> {
     await navigator.clipboard.writeText(text)
     return
   }
-
-  // Fallback for older browsers.
   const textarea = document.createElement("textarea")
   textarea.value = text
   textarea.style.position = "fixed"
@@ -85,7 +84,7 @@ function findPreviousUserMessage(messages: ChatMessageView[], assistantIndex: nu
   return ""
 }
 
-export function ChatInterface() {
+export function InterviewChat() {
   const [question, setQuestion] = useState("")
   const [model, setModel] = useState<AllowedModel>("llama-3.1-8b-instant")
   const [isLoading, setIsLoading] = useState(false)
@@ -121,7 +120,7 @@ export function ChatInterface() {
     setQuestion("")
 
     try {
-      const result: RAGResponse = await ragChat({
+      const result: InterviewResponse = await interviewChat({
         question: trimmed,
         model,
         messages: toServerMessages(priorMessages),
@@ -148,20 +147,8 @@ export function ChatInterface() {
     }
   }
 
-  const getSourceText = (source: RAGResponse["sources"][0]) => {
-    const textContent = source.data || source.metadata?.text || source.metadata?.description || source.metadata?.content
-
-    if (textContent) return textContent
-
-    // If no text, create a summary from metadata
-    if (source.metadata && Object.keys(source.metadata).length > 0) {
-      const metadataPairs = Object.entries(source.metadata)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join(", ")
-      return `[Metadata only: ${metadataPairs}]`
-    }
-
-    return `[Document ID: ${source.id}]`
+  const getSourceText = (source: ProfileVectorResult) => {
+    return source.data || "[No content available]"
   }
 
   const handleReset = () => {
@@ -187,43 +174,45 @@ export function ChatInterface() {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      {/* Chat */}
-      <Card className="border-2 shadow-lg">
-        <CardHeader className="pb-4">
+      <Card className="border-2 shadow-lg border-blue-200 dark:border-blue-800">
+        <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-t-lg">
           <CardTitle className="flex items-center gap-2 text-2xl">
-            <Sparkles className="w-6 h-6 text-primary" />
-            Food Chat
+            <User className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            Digital Twin Interview
           </CardTitle>
-          <CardDescription>Ask questions and follow up — sources are attached to each answer.</CardDescription>
+          <CardDescription>
+            Interview Aniraj Khadgi's Digital Twin — ask questions about experience, skills, and background.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Example Queries */}
-          <div className="rounded-lg border bg-muted/10 p-4">
+        <CardContent className="space-y-4 pt-4">
+          {/* Interview Questions */}
+          <div className="rounded-lg border bg-blue-50/50 dark:bg-blue-950/30 p-4">
             <div className="flex items-center justify-between gap-3 mb-3">
-              <p className="text-sm font-semibold">Example queries</p>
-              <p className="text-xs text-muted-foreground">Click to fill</p>
+              <p className="text-sm font-semibold">Common Interview Questions</p>
+              <p className="text-xs text-muted-foreground">Click to ask</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {EXAMPLE_QUERIES.map((item) => (
+              {INTERVIEW_QUESTIONS.map((item) => (
                 <Button
                   key={item.label}
                   type="button"
                   variant="outline"
-                  className="rounded-full"
+                  className="rounded-full gap-2"
                   disabled={isLoading}
                   onClick={() => handleSuggestionClick(item.prompt)}
                 >
+                  {item.icon}
                   {item.label}
                 </Button>
               ))}
             </div>
           </div>
 
-          {/* Category Suggestions */}
+          {/* Category Questions */}
           <div className="rounded-lg border bg-muted/10 p-4">
-            <p className="text-sm font-semibold mb-3">Suggestions by category</p>
+            <p className="text-sm font-semibold mb-3">Questions by Category</p>
             <div className="space-y-3">
-              {CATEGORY_SUGGESTIONS.map((group) => (
+              {CATEGORY_QUESTIONS.map((group) => (
                 <div key={group.title} className="flex flex-wrap items-center gap-2">
                   <Badge variant="secondary" className="mr-1">
                     {group.title}
@@ -260,9 +249,9 @@ export function ChatInterface() {
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary">Turns: {turns}</Badge>
+              <Badge variant="secondary">Questions: {turns}</Badge>
               <Button type="button" variant="outline" onClick={handleReset} disabled={isLoading}>
-                New chat
+                New Interview
               </Button>
             </div>
           </div>
@@ -270,7 +259,8 @@ export function ChatInterface() {
           <div className="h-[460px] overflow-y-auto rounded-lg border bg-muted/10 p-4 space-y-4">
             {messages.length === 0 ? (
               <div className="text-sm text-muted-foreground">
-                Start with an example query above, or type your own question.
+                <p className="mb-2">Welcome! I'm Aniraj's Digital Twin.</p>
+                <p>Ask me about my experience, skills, projects, or education. I'll answer based on my professional background.</p>
               </div>
             ) : (
               messages.map((message, index) => {
@@ -286,8 +276,8 @@ export function ChatInterface() {
                     <div
                       className={
                         isAssistant
-                          ? "w-full max-w-[86%] rounded-2xl border bg-card px-4 py-3 shadow-sm"
-                          : "w-full max-w-[86%] rounded-2xl bg-primary text-primary-foreground px-4 py-3 shadow-sm"
+                          ? "w-full max-w-[86%] rounded-2xl border bg-card px-4 py-3 shadow-sm border-blue-200 dark:border-blue-800"
+                          : "w-full max-w-[86%] rounded-2xl bg-blue-600 text-white px-4 py-3 shadow-sm"
                       }
                     >
                       {isAssistant && (
@@ -308,7 +298,7 @@ export function ChatInterface() {
                               </>
                             ) : (
                               <>
-                                <Copy className="w-4 h-4 mr-2" /> Copy answer
+                                <Copy className="w-4 h-4 mr-2" /> Copy
                               </>
                             )}
                           </Button>
@@ -324,7 +314,7 @@ export function ChatInterface() {
                               markCopied(message.id)
                             }}
                           >
-                            <Copy className="w-4 h-4 mr-2" /> Copy Q&A
+                            <Copy className="w-4 h-4 mr-2" /> Q&A
                           </Button>
 
                           {canShare && (
@@ -336,7 +326,7 @@ export function ChatInterface() {
                               onClick={async () => {
                                 const text = `Q: ${previousUserQuestion || "(question unavailable)"}\n\nA: ${message.content}`
                                 await (navigator as any).share({
-                                  title: "Food RAG Answer",
+                                  title: "Digital Twin Interview",
                                   text,
                                 })
                               }}
@@ -354,17 +344,24 @@ export function ChatInterface() {
                       {isAssistant && message.sources && message.sources.length > 0 && (
                         <details className="mt-3">
                           <summary className="cursor-pointer select-none text-sm text-muted-foreground hover:text-foreground">
-                            Sources ({message.sources.length})
+                            Profile Sources ({message.sources.length})
                           </summary>
                           <div className="mt-3 space-y-2">
-                            {message.sources.map((source, index) => {
+                            {message.sources.map((source, idx) => {
                               const textContent = getSourceText(source)
                               return (
-                                <div key={`${message.id}:${source.id || index}`} className="rounded-lg border bg-muted/20 p-3">
+                                <div key={`${message.id}:${source.id || idx}`} className="rounded-lg border bg-blue-50/50 dark:bg-blue-950/30 p-3">
                                   <div className="flex items-start justify-between gap-4 mb-2">
-                                    <p className="font-semibold text-xs text-muted-foreground">Document {index + 1}</p>
+                                    <div className="flex items-center gap-2">
+                                      <Badge variant="outline" className="text-xs">
+                                        {source.metadata?.type || "info"}
+                                      </Badge>
+                                      {source.metadata?.company && (
+                                        <span className="text-xs text-muted-foreground">{source.metadata.company}</span>
+                                      )}
+                                    </div>
                                     <Badge variant="secondary" className="shrink-0">
-                                      {(source.score * 100).toFixed(1)}%
+                                      {(source.score * 100).toFixed(0)}%
                                     </Badge>
                                   </div>
                                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{textContent}</p>
@@ -382,7 +379,7 @@ export function ChatInterface() {
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="w-full max-w-[86%] rounded-2xl border bg-card px-4 py-3 shadow-sm">
+                <div className="w-full max-w-[86%] rounded-2xl border bg-card px-4 py-3 shadow-sm border-blue-200 dark:border-blue-800">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     <span>Thinking…</span>
@@ -400,11 +397,11 @@ export function ChatInterface() {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask a question…"
+              placeholder="Ask an interview question…"
               className="min-h-[64px] resize-none text-base"
               disabled={isLoading}
             />
-            <Button type="submit" disabled={!canSend} size="icon" className="h-[64px] w-12 shrink-0 rounded-xl">
+            <Button type="submit" disabled={!canSend} size="icon" className="h-[64px] w-12 shrink-0 rounded-xl bg-blue-600 hover:bg-blue-700">
               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
             </Button>
           </form>

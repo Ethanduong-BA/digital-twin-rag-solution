@@ -1,6 +1,8 @@
 "use server"
 
-import { searchProfile, formatProfileResultsAsContext, type ProfileVectorResult } from "@/lib/profile-search"
+import { searchProfile, type ProfileVectorResult } from "@/lib/profile-search"
+import { trackInterviewEvent } from "@/lib/analytics"
+import { hashQuery } from "@/lib/utils"
 
 export interface InterviewResponse {
   sources: ProfileVectorResult[]
@@ -293,6 +295,10 @@ async function queryGroqInterviewAnswer(params: {
  * Interview RAG query - answers interview questions as the Digital Twin persona
  */
 export async function interviewQuery(question: string): Promise<InterviewResponse> {
+  const startMs = Date.now()
+  let vectorMs = 0
+  let groqMs = 0
+  
   try {
     const normalizedQuestion = normalizeQuestion(question)
     if (normalizedQuestion.length < MIN_QUESTION_LENGTH) {
@@ -303,10 +309,22 @@ export async function interviewQuery(question: string): Promise<InterviewRespons
     }
 
     // Search profile for relevant context
+    const vectorStart = Date.now()
     const vectorResults = await searchProfile({ query: normalizedQuestion, topK: DEFAULT_TOP_K })
+    vectorMs = Date.now() - vectorStart
     const selectedResults = vectorResults.slice(0, SOURCES_TO_RETURN)
 
     if (selectedResults.length === 0) {
+      trackInterviewEvent({
+        status: "success",
+        model: DEFAULT_GROQ_MODEL,
+        queryHash: hashQuery(normalizedQuestion),
+        querySample: normalizedQuestion.slice(0, 60),
+        totalMs: Date.now() - startMs,
+        vectorMs,
+        groqMs: 0,
+        sourceTypes: [],
+      })
       return {
         sources: [],
         answer: "I don't have specific information about that in my profile. Could you ask about my experience, skills, projects, or education?",
@@ -314,11 +332,26 @@ export async function interviewQuery(question: string): Promise<InterviewRespons
     }
 
     const context = buildContextFromProfileResults(selectedResults)
+    const groqStart = Date.now()
     const answer = await queryGroqInterviewAnswer({
       model: DEFAULT_GROQ_MODEL,
       question: normalizedQuestion,
       context,
       messages: [],
+    })
+    groqMs = Date.now() - groqStart
+
+    // Track successful event
+    const sourceTypes = [...new Set(selectedResults.map(r => r.metadata?.type ?? "unknown"))]
+    trackInterviewEvent({
+      status: "success",
+      model: DEFAULT_GROQ_MODEL,
+      queryHash: hashQuery(normalizedQuestion),
+      querySample: normalizedQuestion.slice(0, 60),
+      totalMs: Date.now() - startMs,
+      vectorMs,
+      groqMs,
+      sourceTypes,
     })
 
     return {
@@ -326,6 +359,16 @@ export async function interviewQuery(question: string): Promise<InterviewRespons
       answer,
     }
   } catch (error) {
+    trackInterviewEvent({
+      status: "error",
+      model: DEFAULT_GROQ_MODEL,
+      queryHash: hashQuery(question),
+      querySample: question.slice(0, 60),
+      totalMs: Date.now() - startMs,
+      vectorMs,
+      groqMs,
+      sourceTypes: [],
+    })
     throw new Error(error instanceof Error ? error.message : "Failed to process your question. Please try again.")
   }
 }
@@ -334,6 +377,11 @@ export async function interviewQuery(question: string): Promise<InterviewRespons
  * Interview chat with conversation history support
  */
 export async function interviewChat(request: InterviewChatRequest): Promise<InterviewResponse> {
+  const startMs = Date.now()
+  let vectorMs = 0
+  let groqMs = 0
+  let model: AllowedGroqModel = DEFAULT_GROQ_MODEL
+  
   try {
     const normalizedQuestion = normalizeQuestion(request.question)
     if (normalizedQuestion.length < MIN_QUESTION_LENGTH) {
@@ -343,14 +391,26 @@ export async function interviewChat(request: InterviewChatRequest): Promise<Inte
       throw new Error("Your question is too long. Please shorten it and try again.")
     }
 
-    const model = pickAllowedGroqModel(request.model)
+    model = pickAllowedGroqModel(request.model)
     const sanitizedMessages = sanitizeChatMessages(request.messages)
 
     // Search profile for relevant context
+    const vectorStart = Date.now()
     const vectorResults = await searchProfile({ query: normalizedQuestion, topK: DEFAULT_TOP_K })
+    vectorMs = Date.now() - vectorStart
     const selectedResults = vectorResults.slice(0, SOURCES_TO_RETURN)
 
     if (selectedResults.length === 0) {
+      trackInterviewEvent({
+        status: "success",
+        model,
+        queryHash: hashQuery(normalizedQuestion),
+        querySample: normalizedQuestion.slice(0, 60),
+        totalMs: Date.now() - startMs,
+        vectorMs,
+        groqMs: 0,
+        sourceTypes: [],
+      })
       return {
         sources: [],
         answer: "I don't have specific information about that in my profile. Could you ask about my experience, skills, projects, or education?",
@@ -358,11 +418,26 @@ export async function interviewChat(request: InterviewChatRequest): Promise<Inte
     }
 
     const context = buildContextFromProfileResults(selectedResults)
+    const groqStart = Date.now()
     const answer = await queryGroqInterviewAnswer({
       model,
       question: normalizedQuestion,
       context,
       messages: sanitizedMessages,
+    })
+    groqMs = Date.now() - groqStart
+
+    // Track successful event
+    const sourceTypes = [...new Set(selectedResults.map(r => r.metadata?.type ?? "unknown"))]
+    trackInterviewEvent({
+      status: "success",
+      model,
+      queryHash: hashQuery(normalizedQuestion),
+      querySample: normalizedQuestion.slice(0, 60),
+      totalMs: Date.now() - startMs,
+      vectorMs,
+      groqMs,
+      sourceTypes,
     })
 
     return {
@@ -370,6 +445,16 @@ export async function interviewChat(request: InterviewChatRequest): Promise<Inte
       answer,
     }
   } catch (error) {
+    trackInterviewEvent({
+      status: "error",
+      model,
+      queryHash: hashQuery(request.question),
+      querySample: request.question.slice(0, 60),
+      totalMs: Date.now() - startMs,
+      vectorMs,
+      groqMs,
+      sourceTypes: [],
+    })
     throw new Error(error instanceof Error ? error.message : "Failed to process your question. Please try again.")
   }
 }
