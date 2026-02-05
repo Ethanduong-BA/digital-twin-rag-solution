@@ -28,32 +28,6 @@ const INTERVIEW_QUESTIONS: Array<{ label: string; prompt: string; icon: React.Re
   { label: "Strengths", prompt: "What would you consider your greatest professional strengths?", icon: <MessageSquare className="w-4 h-4" /> },
 ]
 
-const CATEGORY_QUESTIONS: Array<{ title: string; items: Array<{ label: string; prompt: string }> }> = [
-  {
-    title: "Experience",
-    items: [
-      { label: "Leadership", prompt: "Describe a time when you demonstrated leadership skills." },
-      { label: "Challenges", prompt: "Tell me about a challenging project you worked on and how you overcame obstacles." },
-      { label: "Achievements", prompt: "What are you most proud of in your career so far?" },
-    ],
-  },
-  {
-    title: "Technical",
-    items: [
-      { label: "Projects", prompt: "Tell me about a technical project you built from scratch." },
-      { label: "Problem-solving", prompt: "How do you approach debugging complex technical issues?" },
-      { label: "Learning", prompt: "How do you stay current with new technologies?" },
-    ],
-  },
-  {
-    title: "Fit & Culture",
-    items: [
-      { label: "Work style", prompt: "How would you describe your ideal work environment?" },
-      { label: "Collaboration", prompt: "How do you handle working with cross-functional teams?" },
-    ],
-  },
-]
-
 function createMessageId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 }
@@ -204,32 +178,6 @@ export function InterviewChat() {
                   {item.icon}
                   {item.label}
                 </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* Category Questions */}
-          <div className="rounded-lg border bg-muted/10 p-4">
-            <p className="text-sm font-semibold mb-3">Questions by Category</p>
-            <div className="space-y-3">
-              {CATEGORY_QUESTIONS.map((group) => (
-                <div key={group.title} className="flex flex-wrap items-center gap-2">
-                  <Badge variant="secondary" className="mr-1">
-                    {group.title}
-                  </Badge>
-                  {group.items.map((item) => (
-                    <Button
-                      key={item.label}
-                      type="button"
-                      variant="secondary"
-                      className="rounded-full"
-                      disabled={isLoading}
-                      onClick={() => handleSuggestionClick(item.prompt)}
-                    >
-                      {item.label}
-                    </Button>
-                  ))}
-                </div>
               ))}
             </div>
           </div>
