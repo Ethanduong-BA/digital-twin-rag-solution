@@ -73,27 +73,40 @@ function readJobFile(filename: string): {
   company: string;
   content: string;
 } {
-  // __dirname is dist or src directory
-  // Go up 2 levels to project root
-  const projectRoot = path.dirname(path.dirname(__dirname));
-  const jobsDir = path.join(projectRoot, "jobs");
-  const filePath = path.join(jobsDir, filename);
+  try {
+    // Get absolute path from compiled dist/server.js location
+    // __dirname will be `/path/to/mcp-server/dist`
+    // We need to go to `/path/to/mcp-server` then to `/path/to` (project root)
+    const mcpServerDir = path.dirname(__dirname); // /mcp-server
+    const projectRoot = path.dirname(mcpServerDir); // /digital-twin-rag-solution
+    const jobsDir = path.join(projectRoot, "jobs");
+    const filePath = path.join(jobsDir, filename);
 
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`Job file not found at: ${filePath}`);
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`Job file not found at: ${filePath}`);
+    }
+
+    const stat = fs.statSync(filePath);
+    if (!stat.isFile()) {
+      throw new Error(`Job path is not a file: ${filePath}`);
+    }
+
+    const content = fs.readFileSync(filePath, "utf-8");
+
+    // Extract title and company from markdown
+    const titleMatch = content.match(/Title:\s*(.+)/);
+    const companyMatch = content.match(/Company:\s*(.+)/);
+
+    return {
+      title: titleMatch ? titleMatch[1].trim() : "Unknown",
+      company: companyMatch ? companyMatch[1].trim() : "Unknown",
+      content,
+    };
+  } catch (error) {
+    throw new Error(
+      `Failed to read job file "${filename}": ${error instanceof Error ? error.message : String(error)}`
+    );
   }
-
-  const content = fs.readFileSync(filePath, "utf-8");
-
-  // Extract title and company from markdown
-  const titleMatch = content.match(/Title:\s*(.+)/);
-  const companyMatch = content.match(/Company:\s*(.+)/);
-
-  return {
-    title: titleMatch ? titleMatch[1].trim() : "Unknown",
-    company: companyMatch ? companyMatch[1].trim() : "Unknown",
-    content,
-  };
 }
 
 /**
@@ -101,7 +114,8 @@ function readJobFile(filename: string): {
  */
 function readUserProfile(): string {
   try {
-    const projectRoot = path.dirname(path.dirname(__dirname));
+    const mcpServerDir = path.dirname(__dirname); // /mcp-server
+    const projectRoot = path.dirname(mcpServerDir); // /digital-twin-rag-solution
     const profilePath = path.join(
       projectRoot,
       "data",
