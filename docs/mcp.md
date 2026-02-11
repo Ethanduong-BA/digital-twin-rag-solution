@@ -134,6 +134,25 @@ Retrieve a specific section of the profile.
 }
 ```
 
+### 3. run_interview
+
+Run a mock interview simulation for a job description.
+
+```ts
+{
+  name: "run_interview",
+  description: "Run a mock interview simulation for a job description",
+  inputSchema: {
+    type: "object",
+    properties: {
+      job_description: { type: "string", description: "The job description to interview for" },
+      num_questions: { type: "number", minimum: 1, maximum: 10, description: "Number of questions per category (default 2)" }
+    },
+    required: ["job_description"]
+  }
+}
+```
+
 ---
 
 ## Core Implementation
@@ -233,8 +252,8 @@ Add to `.vscode/mcp.json`:
 {
   "servers": {
     "digital-twin": {
-      "type": "sse",
-      "url": "http://localhost:3000/api/sse"
+      "type": "http",
+      "url": "http://localhost:3000/api/mcp"
     }
   }
 }
@@ -250,8 +269,8 @@ Add to `.vscode/mcp.json`:
 {
   "mcpServers": {
     "digital-twin": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "http://localhost:3000/api/sse"]
+      "type": "http",
+      "url": "http://localhost:3000/api/mcp"
     }
   }
 }
@@ -263,8 +282,8 @@ Add to `.vscode/mcp.json`:
 {
   "mcpServers": {
     "digital-twin": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "https://your-domain.vercel.app/api/sse"]
+      "type": "http",
+      "url": "https://digital-twin-rag-solution.vercel.app/api/mcp"
     }
   }
 }

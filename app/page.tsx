@@ -2,6 +2,9 @@ import { InterviewChat } from "@/components/interview-chat"
 import { User, BarChart3 } from "lucide-react"
 import Link from "next/link"
 
+const ownerName = process.env.OWNER_NAME || "Digital Twin"
+const ownerFirstName = process.env.OWNER_FIRST_NAME || ownerName.split(" ")[0]
+
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
@@ -30,14 +33,14 @@ export default function Home() {
             </Link>
           </div>
           <p className="text-center text-muted-foreground mt-2 text-base md:text-lg">
-            Interview Aniraj Khadgi's Digital Twin — powered by RAG
+            Interview {ownerName}&apos;s Digital Twin — powered by RAG
           </p>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-8 md:py-12">
-        <InterviewChat />
+        <InterviewChat ownerName={ownerName} ownerFirstName={ownerFirstName} />
       </main>
 
       {/* Footer */}

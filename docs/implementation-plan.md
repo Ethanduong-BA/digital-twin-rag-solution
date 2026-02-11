@@ -116,30 +116,38 @@ This document provides a detailed task breakdown for implementing the Digital Tw
 
 ---
 
-## Week 4: Refinement
+## Week 4: Refinement & Deployment ✅ COMPLETE
 
 ### Objectives
-- Improve answer quality and relevance
-- Add feedback/rating mechanism
-- Optimize performance
+- Host system on Vercel cloud infrastructure
+- Refine knowledge base based on test results
+- Achieve target interview performance through data improvement
 
 ### Tasks
 
 | ID | Task | Owner | Dependencies | Status | Notes |
 |----|------|-------|--------------|--------|-------|
-| W4.1 | Fine-tune vector search TopK | Aniraj | W2.1 | ⬜ Not Started | Optimal: 5-8 results |
-| W4.2 | Tune context length for LLM | Aniraj | W2.1 | ⬜ Not Started | Balance detail vs. noise |
-| W4.3 | Add confidence scoring | Aniraj | W2.1 | ⬜ Not Started | Based on vector scores |
-| W4.4 | Implement answer feedback UI | Aniraj | W2.3 | ⬜ Not Started | Thumbs up/down rating |
-| W4.5 | Add caching for frequent questions | Aniraj | W2.1 | ⬜ Not Started | Already using cache TTL |
-| W4.6 | Optimize response latency | Aniraj | W4.1, W4.2 | ⬜ Not Started | Target < 3s |
-| W4.7 | Handle edge cases | Aniraj | W2.1 | ⬜ Not Started | Off-topic, adversarial |
-| W4.8 | Update analytics with feedback | Aniraj | W4.4, W2.9 | ⬜ Not Started | Track ratings |
+| W4.1 | Deploy MCP server to Vercel | Aniraj | W3 | ✅ Done | https://digital-twin-rag-solution.vercel.app |
+| W4.2 | Configure Vercel env variables | Aniraj | W4.1 | ✅ Done | All API keys configured |
+| W4.3 | Test Vercel MCP endpoint | Aniraj | W4.2 | ✅ Done | Endpoint accessible |
+| W4.4 | Identify Week 3 performance issues | Aniraj | W3.7 | ✅ Done | Documented gaps |
+| W4.5 | Refine profile data/vectors | Aniraj | W4.4 | ✅ Done | Enhanced content |
+| W4.6 | Re-run interview simulations | Aniraj | W4.5 | ✅ Done | Improved scores |
+| W4.7 | Create performance-improvement.md | Aniraj | W4.6 | ✅ Done | Before/after comparison |
+| W4.8 | Create mcp-server-url.txt | Aniraj | W4.3 | ✅ Done | URL documented |
+
+### Performance Improvement Results
+- **Week 3 Average:** 7.8/10
+- **Week 4 Average:** 8.7/10
+- **Improvement:** +0.9 (+12%)
+- **Weakest Role Fixed:** CBA BI Developer 7.2 → 8.6 (+1.4)
 
 ### Deliverables
-- [ ] Improved answer quality (subjective evaluation)
-- [ ] Feedback collection mechanism
-- [ ] Performance metrics showing < 5s latency
+- [x] Live Vercel deployment: https://digital-twin-rag-solution.vercel.app
+- [x] Performance improvement documentation
+- [x] MCP server URL file
+- [ ] ClickUp board screenshot (clickup-board-week4-aniraj.png)
+- [ ] GitHub commits PDF (github-commits-week4-aniraj.pdf)
 
 ---
 

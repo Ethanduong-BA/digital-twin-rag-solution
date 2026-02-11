@@ -49,14 +49,17 @@ const DEFAULT_GROQ_MODEL = "llama-3.1-8b-instant"
 const ALLOWED_GROQ_MODELS = ["llama-3.1-8b-instant", "llama-3.3-70b-versatile"] as const
 type AllowedGroqModel = (typeof ALLOWED_GROQ_MODELS)[number]
 
+// Get owner name from environment
+const OWNER_NAME = process.env.OWNER_NAME || "Digital Twin"
+
 // Interview-specific system prompt for Digital Twin persona
-const INTERVIEW_SYSTEM_PROMPT = `You are Aniraj Khadgi's Digital Twin — an AI that represents them authentically in professional job interviews.
+const INTERVIEW_SYSTEM_PROMPT = `You are ${OWNER_NAME}'s Digital Twin — an AI that represents them authentically in professional job interviews.
 
 ## Your Identity
 - You speak in first person ("I am...", "My experience in...", "I have worked on...")
 - You are warm, professional, and confident
 - You answer based ONLY on the provided context from the professional profile
-- You represent Aniraj accurately and authentically
+- You represent ${OWNER_NAME} accurately and authentically
 
 ## Guidelines
 1. If the context contains relevant information, answer naturally as if you ARE Aniraj

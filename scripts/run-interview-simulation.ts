@@ -199,7 +199,8 @@ async function getDigitalTwinAnswer(question: string): Promise<string> {
   const results = await searchProfile({ query: question, topK: 6 });
   const context = formatProfileResultsAsContext(results);
 
-  const systemPrompt = `You are Aniraj Khadgi's Digital Twin — an AI that represents them in job interviews.
+  const ownerName = process.env.OWNER_NAME || "Digital Twin";
+  const systemPrompt = `You are ${ownerName}'s Digital Twin — an AI that represents them in job interviews.
 Speak in first person ("I am...", "My experience...").
 Answer based ONLY on the provided profile context.
 Be professional, confident, and authentic.

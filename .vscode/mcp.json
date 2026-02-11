@@ -3,6 +3,11 @@
     "digital-twin": {
       "type": "http",
       "url": "http://localhost:3000/api/mcp"
+    },
+    
+    "digital-twin-remote":{
+      "type": "http",
+      "url": "https://digital-twin-rag-solution.vercel.app/api/mcp"
     }
   }
 }

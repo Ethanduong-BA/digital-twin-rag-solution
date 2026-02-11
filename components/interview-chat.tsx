@@ -58,7 +58,12 @@ function findPreviousUserMessage(messages: ChatMessageView[], assistantIndex: nu
   return ""
 }
 
-export function InterviewChat() {
+interface InterviewChatProps {
+  ownerName: string
+  ownerFirstName: string
+}
+
+export function InterviewChat({ ownerName, ownerFirstName }: InterviewChatProps) {
   const [question, setQuestion] = useState("")
   const [model, setModel] = useState<AllowedModel>("llama-3.1-8b-instant")
   const [isLoading, setIsLoading] = useState(false)
@@ -155,7 +160,7 @@ export function InterviewChat() {
             Digital Twin Interview
           </CardTitle>
           <CardDescription>
-            Interview Aniraj Khadgi's Digital Twin — ask questions about experience, skills, and background.
+            Interview {ownerName}&apos;s Digital Twin — ask questions about experience, skills, and background.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pt-4">
@@ -207,8 +212,8 @@ export function InterviewChat() {
           <div className="h-[460px] overflow-y-auto rounded-lg border bg-muted/10 p-4 space-y-4">
             {messages.length === 0 ? (
               <div className="text-sm text-muted-foreground">
-                <p className="mb-2">Welcome! I'm Aniraj's Digital Twin.</p>
-                <p>Ask me about my experience, skills, projects, or education. I'll answer based on my professional background.</p>
+                <p className="mb-2">Welcome! I&apos;m {ownerFirstName}&apos;s Digital Twin.</p>
+                <p>Ask me about my experience, skills, projects, or education. I&apos;ll answer based on my professional background.</p>
               </div>
             ) : (
               messages.map((message, index) => {
