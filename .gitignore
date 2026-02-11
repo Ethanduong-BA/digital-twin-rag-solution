@@ -155,6 +155,3 @@ dist/
 
 # Sensitive data
 data-pipeline/raw_data/*.json
-
-# Installed skills
-skills/
