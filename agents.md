@@ -7,7 +7,8 @@ This project implements a **Digital Twin** — a personal AI agent that represen
 - **Next.js 16 App Router** with interview chat UI and server actions
 - **Upstash Vector** auto-embedding storage populated by `scripts/upsert-profile.ts` from professional profile data in `data/profile.json`
 - **Groq LLaMA 3.1 8B Instant** completions with first-person persona prompting
-- **MCP Tools** (`search_profile`, `get_profile_section`) for AI agent integration in VS Code and Claude Desktop
+- **MCP Tools** (`search_profile`, `get_profile_section`, `run_interview`) for AI agent integration in VS Code and Claude Desktop
+- **Interview Simulation Engine** (`scripts/run-interview-simulation.ts`) for automated interview testing against job descriptions
 - End-to-end interview testing via `scripts/test-interview.ts`
 
 ## Architecture at a Glance
@@ -21,13 +22,22 @@ User/Recruiter ➜ Interview Chat UI (app/page.tsx)
 
 VS Code Copilot ─┐
 Claude Desktop  ─┼─► MCP Endpoint (app/api/[transport]/route.ts)
-                       ➜ search_profile / get_profile_section tools
+                       ➜ search_profile / get_profile_section / run_interview tools
+
+Interview Simulation ─► scripts/run-interview-simulation.ts
+                         ➜ Reads job descriptions from /jobs
+                         ➜ Generates questions by category
+                         ➜ Gets Digital Twin answers via RAG
+                         ➜ Evaluates and scores responses
+                         ➜ Outputs results to /interview
 ```
 
 Supporting services:
 - `scripts/upsert-profile.ts`: chunks and embeds profile.json into Upstash Vector
 - `scripts/test-interview.ts`: automated interview question testing harness
+- `scripts/run-interview-simulation.ts`: full interview simulation against job descriptions
 - `lib/profile-search.ts`: profile search with Zod schemas and formatting
+- `lib/interview-simulator.ts`: interview simulation engine for MCP tool
 
 ## Instructions for Future AI Agents
 
@@ -39,34 +49,73 @@ Supporting services:
    - Install deps: `pnpm install`
    - Upsert profile: `pnpm upsert-profile`
    - Run interview tests: `pnpm test-interview`
+   - Run full simulation: `pnpm run-simulation`
    - Launch dev server: `pnpm dev`
 
-3. **Testing Expectations**
+3. **MCP Connection (VS Code Copilot)**
+   - Ensure `.vscode/mcp.json` exists with Digital Twin server config
+   - Start dev server: `pnpm dev`
+   - Use MCP tools in Copilot Chat:
+     - `search_profile`: Semantic search across professional profile
+     - `get_profile_section`: Retrieve specific sections (experience, skills, etc.)
+     - `run_interview`: Run interview simulation for a job description
+
+4. **MCP Connection (Claude Desktop)**
+   - Add to Claude configuration:
+     ```json
+     {
+       "mcpServers": {
+         "digital-twin": {
+           "type": "http",
+           "url": "http://localhost:3000/api/mcp"
+         }
+       }
+     }
+     ```
+   - Start dev server before using tools
+
+5. **Interview Simulation**
+   - Job descriptions stored in `/jobs` folder (5+ real JDs from seek/linkedin/indeed)
+   - Run simulation: `pnpm run-simulation`
+   - Results output to `/interview` folder with:
+     - Individual result files per job (Q&A, scores, feedback)
+     - SUMMARY.md with overall statistics and category analysis
+     - Pass/fail status (threshold: 6.0/10)
+   - Simulation covers 5 categories: HR/Behavioral, Technical, Team/Culture, Experience, Academic/Learning
+
+6. **Testing Expectations**
    - When modifying RAG logic or profile data, re-run `pnpm test-interview`
+   - After adding/modifying job descriptions, re-run `pnpm run-simulation`
    - Store artifacts under `docs/test-results/` (git-ignored)
    - Reference test results in commits or PRs
 
-4. **Coding Standards**
+7. **Coding Standards**
    - Keep retry logic centralized (`fetchWithRetry` patterns)
    - Use concise Tailwind/shadcn patterns for UI updates
    - Maintain first-person persona in interview responses
    - Never fabricate experiences not in profile.json
 
-5. **MCP Integration**
-   - Tools defined in `lib/profile-search.ts`, registered in `app/api/[transport]/route.ts`
-   - Test with VS Code Copilot or Claude Desktop using SSE endpoint
-   - See `.vscode/mcp.json` for local configuration
-
-6. **Documentation Hygiene**
+8. **Documentation Hygiene**
    - Update README + docs when behavior, commands, or architecture change
-   - Keep `docs/DIGITAL_TWIN_PLAN.md` updated with implementation progress
+   - Keep `docs/implementation-plan.md` updated with implementation progress
+
+## Folder Structure
+
+| Folder | Purpose |
+|--------|---------|
+| `/jobs` | Real job descriptions in markdown format (5+ required) |
+| `/interview` | Interview simulation results with scores and recommendations |
+| `/lib` | Core modules (profile-search, interview-simulator, analytics) |
+| `/data` | Profile data (profile.json) |
+| `/scripts` | CLI utilities (upsert, test, simulate) |
 
 ## Instruction File Reference
 
 | File | Purpose |
 | --- | --- |
 | [README.md](README.md) | Project overview, setup, MCP config, and example questions |
-| [docs/DIGITAL_TWIN_PLAN.md](docs/DIGITAL_TWIN_PLAN.md) | 6-week implementation plan with weekly goals and task status |
+| [docs/implementation-plan.md](docs/implementation-plan.md) | Implementation plan with weekly goals and task status |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture and component descriptions |
 | [docs/mcp.md](docs/mcp.md) | MCP integration details and tool specifications |
 | [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md) | Branching, tagging, and PR guidelines |
+| [docs/design.md](docs/design.md) | Design decisions and RAG approach |

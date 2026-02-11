@@ -32,3 +32,6 @@ next-env.d.ts
 # test artifacts
 docs/test-results/*.json
 docs/test-results/*.md
+
+# interview simulation results (regenerate with: npm run run-simulation)
+/interview/*-result.md
