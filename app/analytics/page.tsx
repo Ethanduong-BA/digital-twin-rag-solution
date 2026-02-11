@@ -108,7 +108,7 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
+        <RefreshCw className="w-8 h-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -127,16 +127,16 @@ export default function AnalyticsPage() {
   const maxHourCount = Math.max(...analytics.hourlyDistribution.map((h) => h.count), 1)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-blue-950 dark:to-background">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-white/80 dark:bg-background/80 backdrop-blur-sm sticky top-0 z-10">
+      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
               <ArrowLeft className="w-4 h-4" />
               Back to Interview
             </Link>
-            <h1 className="text-2xl font-bold text-blue-600">Interview Analytics</h1>
+            <h1 className="text-2xl font-bold text-primary">Interview Analytics</h1>
             {lastUpdated && (
               <span className="text-xs text-muted-foreground">
                 Updated {lastUpdated.toLocaleTimeString()}
@@ -197,7 +197,7 @@ export default function AnalyticsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-green-600">
+              <p className="text-3xl font-bold text-primary">
                 {analytics.successRate.toFixed(1)}%
               </p>
               <p className="text-sm text-muted-foreground">
@@ -262,7 +262,7 @@ export default function AnalyticsPage() {
                       </Badge>
                       <div className="flex-1 bg-muted rounded-full h-4 overflow-hidden">
                         <div
-                          className="bg-blue-600 h-full rounded-full transition-all"
+                          className="bg-primary h-full rounded-full transition-all"
                           style={{
                             width: `${(source.count / analytics.topSourceTypes[0].count) * 100}%`,
                           }}
@@ -292,7 +292,7 @@ export default function AnalyticsPage() {
                 {analytics.hourlyDistribution.map((hour) => (
                   <div
                     key={hour.hour}
-                    className="flex-1 bg-blue-200 dark:bg-blue-900 rounded-t hover:bg-blue-300 dark:hover:bg-blue-800 transition-colors"
+                    className="flex-1 bg-primary/30 rounded-t hover:bg-primary/50 transition-colors"
                     style={{
                       height: `${Math.max((hour.count / maxHourCount) * 100, 4)}%`,
                     }}

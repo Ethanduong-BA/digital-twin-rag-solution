@@ -1,12 +1,9 @@
 "use client"
 
 import type React from "react"
-
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Send, Loader2, User, Copy, Share2, Check, Briefcase, GraduationCap, Code, MessageSquare } from "lucide-react"
+import { Send, Loader2, User, Briefcase, GraduationCap, Code, MessageSquare, ChevronDown, RotateCcw, Copy, Check, Maximize2, Minimize2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { interviewChat, type ChatMessage, type InterviewResponse } from "@/app/actions-interview"
 import { type ProfileVectorResult } from "@/lib/profile-search"
@@ -21,11 +18,11 @@ type ChatMessageView = {
 }
 
 const INTERVIEW_QUESTIONS: Array<{ label: string; prompt: string; icon: React.ReactNode }> = [
-  { label: "Tell me about yourself", prompt: "Tell me about yourself and your professional background.", icon: <User className="w-4 h-4" /> },
-  { label: "Technical skills", prompt: "What are your key technical skills and how have you applied them?", icon: <Code className="w-4 h-4" /> },
-  { label: "Recent experience", prompt: "Can you walk me through your most recent work experience?", icon: <Briefcase className="w-4 h-4" /> },
-  { label: "Education", prompt: "Tell me about your educational background and what you learned.", icon: <GraduationCap className="w-4 h-4" /> },
-  { label: "Strengths", prompt: "What would you consider your greatest professional strengths?", icon: <MessageSquare className="w-4 h-4" /> },
+  { label: "About yourself", prompt: "Tell me about yourself and your professional background.", icon: <User className="w-3.5 h-3.5" /> },
+  { label: "Technical skills", prompt: "What are your key technical skills and how have you applied them?", icon: <Code className="w-3.5 h-3.5" /> },
+  { label: "Experience", prompt: "Can you walk me through your most recent work experience?", icon: <Briefcase className="w-3.5 h-3.5" /> },
+  { label: "Education", prompt: "Tell me about your educational background and what you learned.", icon: <GraduationCap className="w-3.5 h-3.5" /> },
+  { label: "Strengths", prompt: "What would you consider your greatest professional strengths?", icon: <MessageSquare className="w-3.5 h-3.5" /> },
 ]
 
 function createMessageId(): string {
@@ -51,13 +48,6 @@ async function copyText(text: string): Promise<void> {
   textarea.remove()
 }
 
-function findPreviousUserMessage(messages: ChatMessageView[], assistantIndex: number): string {
-  for (let i = assistantIndex - 1; i >= 0; i -= 1) {
-    if (messages[i]?.role === "user") return messages[i].content
-  }
-  return ""
-}
-
 interface InterviewChatProps {
   ownerName: string
   ownerFirstName: string
@@ -69,17 +59,30 @@ export function InterviewChat({ ownerName, ownerFirstName }: InterviewChatProps)
   const [isLoading, setIsLoading] = useState(false)
   const [messages, setMessages] = useState<ChatMessageView[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
+  const [showExpandButton, setShowExpandButton] = useState(false)
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const inputRef = useRef<HTMLTextAreaElement | null>(null)
-  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
 
   const canSend = Boolean(question.trim()) && !isLoading
+  const turns = useMemo(() => Math.floor(messages.length / 2), [messages.length])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
   }, [messages.length, isLoading])
 
-  const turns = useMemo(() => Math.floor(messages.length / 2), [messages.length])
+  // Auto-resize textarea and check if expand button needed
+  useEffect(() => {
+    const textarea = inputRef.current
+    if (textarea) {
+      textarea.style.height = "auto"
+      const scrollHeight = textarea.scrollHeight
+      textarea.style.height = `${Math.min(scrollHeight, isExpanded ? 400 : 120)}px`
+      // Show expand button if content exceeds 3 lines (approx 72px)
+      setShowExpandButton(scrollHeight > 80)
+    }
+  }, [question, isExpanded])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -126,10 +129,6 @@ export function InterviewChat({ ownerName, ownerFirstName }: InterviewChatProps)
     }
   }
 
-  const getSourceText = (source: ProfileVectorResult) => {
-    return source.data || "[No content available]"
-  }
-
   const handleReset = () => {
     if (isLoading) return
     setError(null)
@@ -144,7 +143,8 @@ export function InterviewChat({ ownerName, ownerFirstName }: InterviewChatProps)
     queueMicrotask(() => inputRef.current?.focus())
   }
 
-  const markCopied = (messageId: string) => {
+  const handleCopy = async (messageId: string, text: string) => {
+    await copyText(text)
     setCopiedMessageId(messageId)
     window.setTimeout(() => {
       setCopiedMessageId((current) => (current === messageId ? null : current))
@@ -152,226 +152,204 @@ export function InterviewChat({ ownerName, ownerFirstName }: InterviewChatProps)
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6">
-      <Card className="border-2 shadow-lg border-blue-200 dark:border-blue-800">
-        <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-t-lg">
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <User className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            Digital Twin Interview
-          </CardTitle>
-          <CardDescription>
-            Interview {ownerName}&apos;s Digital Twin — ask questions about experience, skills, and background.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 pt-4">
-          {/* Interview Questions */}
-          <div className="rounded-lg border bg-blue-50/50 dark:bg-blue-950/30 p-4">
-            <div className="flex items-center justify-between gap-3 mb-3">
-              <p className="text-sm font-semibold">Common Interview Questions</p>
-              <p className="text-xs text-muted-foreground">Click to ask</p>
+    <div className="h-full flex flex-col max-w-3xl mx-auto">
+      {/* Chat Area */}
+      <div className="flex-1 overflow-y-auto px-4 py-6">
+        {messages.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-center px-4">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-6">
+              <User className="w-8 h-8 text-white" />
             </div>
-            <div className="flex flex-wrap gap-2">
+            <h2 className="text-2xl font-medium text-foreground mb-2">
+              Hi, I&apos;m {ownerFirstName}&apos;s Digital Twin
+            </h2>
+            <p className="text-muted-foreground mb-8 max-w-md">
+              Ask me about experience, skills, projects, or education. I&apos;ll answer based on my professional background.
+            </p>
+            
+            {/* Quick Questions */}
+            <div className="flex flex-wrap justify-center gap-2 max-w-lg">
               {INTERVIEW_QUESTIONS.map((item) => (
-                <Button
+                <button
                   key={item.label}
                   type="button"
-                  variant="outline"
-                  className="rounded-full gap-2"
                   disabled={isLoading}
                   onClick={() => handleSuggestionClick(item.prompt)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm bg-muted hover:bg-muted/80 text-foreground transition-colors disabled:opacity-50"
                 >
                   {item.icon}
                   {item.label}
-                </Button>
+                </button>
               ))}
             </div>
           </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Model</span>
-              <select
-                value={model}
-                onChange={(e) => setModel(e.target.value as AllowedModel)}
-                disabled={isLoading}
-                className="h-9 rounded-md border bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                aria-label="Select model"
-              >
-                <option value="llama-3.1-8b-instant">LLaMA 3.1 8B (Instant)</option>
-                <option value="llama-3.3-70b-versatile">LLaMA 3.3 70B (Versatile)</option>
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">Questions: {turns}</Badge>
-              <Button type="button" variant="outline" onClick={handleReset} disabled={isLoading}>
-                New Interview
-              </Button>
-            </div>
-          </div>
-
-          <div className="h-[460px] overflow-y-auto rounded-lg border bg-muted/10 p-4 space-y-4">
-            {messages.length === 0 ? (
-              <div className="text-sm text-muted-foreground">
-                <p className="mb-2">Welcome! I&apos;m {ownerFirstName}&apos;s Digital Twin.</p>
-                <p>Ask me about my experience, skills, projects, or education. I&apos;ll answer based on my professional background.</p>
-              </div>
-            ) : (
-              messages.map((message, index) => {
-                const isAssistant = message.role === "assistant"
-                const previousUserQuestion = isAssistant ? findPreviousUserMessage(messages, index) : ""
-
-                const canShare =
-                  isAssistant &&
-                  typeof navigator !== "undefined" &&
-                  typeof (navigator as unknown as { share?: unknown }).share === "function"
-                return (
-                  <div key={message.id} className={isAssistant ? "flex justify-start" : "flex justify-end"}>
-                    <div
-                      className={
-                        isAssistant
-                          ? "w-full max-w-[86%] rounded-2xl border bg-card px-4 py-3 shadow-sm border-blue-200 dark:border-blue-800"
-                          : "w-full max-w-[86%] rounded-2xl bg-blue-600 text-white px-4 py-3 shadow-sm"
-                      }
-                    >
-                      {isAssistant && (
-                        <div className="flex items-center justify-end gap-2 mb-2">
-                          <Button
+        ) : (
+          <div className="space-y-6">
+            {messages.map((message) => {
+              const isAssistant = message.role === "assistant"
+              return (
+                <div key={message.id} className={isAssistant ? "" : "flex justify-end"}>
+                  {isAssistant ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                          <User className="w-3.5 h-3.5 text-white" />
+                        </div>
+                        <span className="font-medium">{ownerFirstName}</span>
+                      </div>
+                      <div className="pl-8">
+                        <p className="text-foreground leading-relaxed whitespace-pre-wrap">
+                          {message.content}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
                             type="button"
-                            size="sm"
-                            variant="outline"
-                            className="h-8 rounded-full"
-                            onClick={async () => {
-                              await copyText(message.content)
-                              markCopied(message.id)
-                            }}
+                            onClick={() => handleCopy(message.id, message.content)}
+                            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                           >
                             {copiedMessageId === message.id ? (
-                              <>
-                                <Check className="w-4 h-4 mr-2" /> Copied
-                              </>
+                              <><Check className="w-3 h-3" /> Copied</>
                             ) : (
-                              <>
-                                <Copy className="w-4 h-4 mr-2" /> Copy
-                              </>
+                              <><Copy className="w-3 h-3" /> Copy</>
                             )}
-                          </Button>
-
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            className="h-8 rounded-full"
-                            onClick={async () => {
-                              const qa = `Q: ${previousUserQuestion || "(question unavailable)"}\n\nA: ${message.content}`
-                              await copyText(qa)
-                              markCopied(message.id)
-                            }}
-                          >
-                            <Copy className="w-4 h-4 mr-2" /> Q&A
-                          </Button>
-
-                          {canShare && (
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="secondary"
-                              className="h-8 rounded-full"
-                              onClick={async () => {
-                                const text = `Q: ${previousUserQuestion || "(question unavailable)"}\n\nA: ${message.content}`
-                                await (navigator as any).share({
-                                  title: "Digital Twin Interview",
-                                  text,
-                                })
-                              }}
-                            >
-                              <Share2 className="w-4 h-4 mr-2" /> Share
-                            </Button>
-                          )}
+                          </button>
                         </div>
-                      )}
-
-                      <p className={isAssistant ? "text-base leading-relaxed whitespace-pre-wrap" : "text-base whitespace-pre-wrap"}>
-                        {message.content}
-                      </p>
-
-                      {isAssistant && message.sources && message.sources.length > 0 && (
-                        <details className="mt-3">
-                          <summary className="cursor-pointer select-none text-sm text-muted-foreground hover:text-foreground">
-                            Profile Sources ({message.sources.length})
-                          </summary>
-                          <div className="mt-3 space-y-2">
-                            {message.sources.map((source, idx) => {
-                              const textContent = getSourceText(source)
-                              return (
-                                <div key={`${message.id}:${source.id || idx}`} className="rounded-lg border bg-blue-50/50 dark:bg-blue-950/30 p-3">
-                                  <div className="flex items-start justify-between gap-4 mb-2">
-                                    <div className="flex items-center gap-2">
-                                      <Badge variant="outline" className="text-xs">
-                                        {source.metadata?.type || "info"}
-                                      </Badge>
-                                      {source.metadata?.company && (
-                                        <span className="text-xs text-muted-foreground">{source.metadata.company}</span>
-                                      )}
-                                    </div>
-                                    <Badge variant="secondary" className="shrink-0">
-                                      {(source.score * 100).toFixed(0)}%
+                        {message.sources && message.sources.length > 0 && (
+                          <details className="mt-3">
+                            <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
+                              Sources ({message.sources.length})
+                            </summary>
+                            <div className="mt-2 space-y-2">
+                              {message.sources.map((source, idx) => (
+                                <div key={`${message.id}:${source.id || idx}`} className="text-xs p-2 rounded bg-muted/50">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                                      {source.metadata?.type || "info"}
                                     </Badge>
+                                    <span className="text-muted-foreground">{(source.score * 100).toFixed(0)}%</span>
                                   </div>
-                                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{textContent}</p>
+                                  <p className="text-muted-foreground line-clamp-2">{source.data}</p>
                                 </div>
-                              )
-                            })}
-                          </div>
-                        </details>
-                      )}
+                              ))}
+                            </div>
+                          </details>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )
-              })
-            )}
+                  ) : (
+                    <div className="max-w-[80%] px-4 py-2.5 rounded-2xl bg-muted text-foreground">
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
 
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="w-full max-w-[86%] rounded-2xl border bg-card px-4 py-3 shadow-sm border-blue-200 dark:border-blue-800">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Thinking…</span>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <User className="w-3.5 h-3.5 text-white" />
                   </div>
+                  <span className="font-medium">{ownerFirstName}</span>
                 </div>
+                <div className="pl-8 flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Thinking...</span>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="pl-8 text-sm text-destructive">
+                {error}
               </div>
             )}
 
             <div ref={bottomRef} />
           </div>
+        )}
+      </div>
 
-          <form onSubmit={handleSubmit} className="flex gap-2">
-            <Textarea
-              ref={inputRef}
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask an interview question…"
-              className="min-h-[64px] resize-none text-base"
-              disabled={isLoading}
-            />
-            <Button type="submit" disabled={!canSend} size="icon" className="h-[64px] w-12 shrink-0 rounded-xl bg-blue-600 hover:bg-blue-700">
-              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Error State */}
-      {error && (
-        <Card className="border-2 border-destructive shadow-lg">
-          <CardContent className="pt-6">
-            <div className="text-destructive text-center py-4">
-              <p className="font-semibold text-lg mb-2">Error</p>
-              <p>{error}</p>
+      {/* Input Area */}
+      <div className="shrink-0 px-4 pb-4">
+        <div className="relative max-w-3xl mx-auto">
+          <form onSubmit={handleSubmit}>
+            <div className="relative rounded-2xl border bg-muted/50 focus-within:ring-2 focus-within:ring-ring">
+              {/* Expand button - top right */}
+              {(showExpandButton || isExpanded) && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="absolute top-2 right-2 h-6 w-6 rounded-full opacity-60 hover:opacity-100"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  title={isExpanded ? "Collapse" : "Expand"}
+                >
+                  {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                </Button>
+              )}
+              <textarea
+                ref={inputRef}
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={`Ask ${ownerFirstName}...`}
+                rows={1}
+                disabled={isLoading}
+                className="w-full resize-none bg-transparent px-4 pt-4 pb-3 pr-10 text-sm placeholder:text-muted-foreground focus:outline-none disabled:opacity-50 overflow-y-auto scrollbar-hide"
+                style={{
+                  minHeight: isExpanded ? "250px" : "24px",
+                  maxHeight: isExpanded ? "50vh" : "100px",
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none"
+                }}
+              />
+              {/* Bottom toolbar */}
+              <div className="flex items-center justify-between px-3 py-2 border-t border-border/50">
+                <div className="flex items-center gap-1">
+                  {turns > 0 && (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 rounded-full"
+                      onClick={handleReset}
+                      disabled={isLoading}
+                      title="New interview"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setModel(model === "llama-3.1-8b-instant" ? "llama-3.3-70b-versatile" : "llama-3.1-8b-instant")}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center gap-1"
+                    title="Click to toggle model"
+                  >
+                    {model === "llama-3.1-8b-instant" ? "Fast" : "Quality"}
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={!canSend}
+                    className="h-7 w-7 rounded-full bg-foreground text-background hover:bg-foreground/90"
+                  >
+                    {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  </Button>
+                </div>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </form>
+
+          <p className="text-center text-[10px] text-muted-foreground mt-2">
+            Powered by RAG • Responses based on professional profile
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
