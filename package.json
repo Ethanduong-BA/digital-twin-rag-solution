@@ -7,7 +7,8 @@
     "dev": "next dev",
     "start": "next start",
     "upsert-profile": "tsx scripts/upsert-profile.ts",
-    "test-interview": "tsx scripts/test-interview.ts"
+    "test-interview": "tsx scripts/test-interview.ts",
+    "run-simulation": "tsx scripts/run-interview-simulation.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

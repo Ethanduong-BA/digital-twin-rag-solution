@@ -1,0 +1,145 @@
+# Interview Simulation Summary - Aniraj Khadgi
+
+**Date:** 2025-01-15
+**Project:** Digital Twin RAG Application
+
+## Overview
+
+This document summarizes the interview simulation results for the Digital Twin project. The simulation tested the AI agent's ability to answer interview questions for 5 real job positions sourced from Australian job sites.
+
+## Simulation Methodology
+
+### Job Descriptions
+5 real job descriptions were collected from:
+- seek.com.au
+- LinkedIn Jobs
+- Indeed.com.au
+
+### Categories Tested
+Each simulation covered 5 interview question categories:
+1. **HR/Behavioral** - Work style, teamwork, conflict resolution
+2. **Technical** - Skills specific to the job requirements
+3. **Team/Culture** - Collaboration, communication, company fit
+4. **Experience** - Past projects and achievements
+5. **Academic/Learning** - Education, continuous learning
+
+### Scoring
+- Scale: 1-10 per answer
+- Pass threshold: 6.0/10 overall
+- Categories averaged for final score
+
+---
+
+## Results Summary
+
+### Overall Statistics
+
+| Metric | Value |
+|--------|-------|
+| Total Simulations | 5 |
+| Pass Rate | 5/5 (100%) |
+| Average Score | 7.8/10 |
+| Passing Threshold | 6.0/10 |
+
+### Individual Results
+
+| # | Company | Position | Score | Status |
+|---|---------|----------|-------|--------|
+| 1 | Canva | Software Engineer - Full Stack | 7.8/10 | PASS |
+| 2 | Atlassian | Data Analyst | 7.4/10 | PASS |
+| 3 | REA Group | Junior Backend Developer | 8.2/10 | PASS |
+| 4 | CBA | BI Developer (Graduate Program) | 7.2/10 | PASS |
+| 5 | Buildkite | Full Stack Developer (Part-Time) | 8.4/10 | PASS |
+
+### Category Performance
+
+| Category | Average Score | Strength Level |
+|----------|---------------|----------------|
+| Academic/Learning | 8.1/10 | Strong |
+| HR/Behavioral | 7.9/10 | Strong |
+| Experience | 7.8/10 | Strong |
+| Technical | 7.7/10 | Good |
+| Team/Culture | 7.7/10 | Good |
+
+---
+
+## Key Findings
+
+### Strengths Identified
+1. **Learning Mindset** - Consistently high scores in academic/learning category
+2. **Project Articulation** - Strong ability to explain technical projects and achievements
+3. **Communication** - Clear, professional responses across all categories
+4. **Technical Foundation** - Solid full-stack skills particularly in React, TypeScript, Node.js
+
+### Areas for Improvement
+1. **BI/Data Tools** - Limited experience with enterprise BI platforms (Tableau, Power BI)
+2. **GraphQL** - Theoretical understanding but limited hands-on experience
+3. **Enterprise Scale** - More experience with large-scale distributed systems would strengthen candidacy
+
+### Role Alignment Analysis
+
+**Best Fit (8.0+):**
+- Full Stack Developer at Buildkite (8.4) - Strong alignment
+- Junior Backend Developer at REA Group (8.2) - Excellent match
+
+**Strong Fit (7.5-8.0):**
+- Software Engineer at Canva (7.8) - Good full-stack alignment
+
+**Potential Fit (7.0-7.5):**
+- Data Analyst at Atlassian (7.4) - Transferable skills
+- BI Developer at CBA (7.2) - Graduate program would accelerate growth
+
+---
+
+## Simulation Details
+
+### Files Generated
+- `/interview/01-software-engineer-canva-result.md`
+- `/interview/02-data-analyst-atlassian-result.md`
+- `/interview/03-junior-backend-developer-rea-result.md`
+- `/interview/04-bi-developer-cba-result.md`
+- `/interview/05-fullstack-developer-buildkite-result.md`
+- `/interview/SUMMARY.md`
+
+### Job Descriptions Used
+- `/jobs/01-software-engineer-canva.md`
+- `/jobs/02-data-analyst-atlassian.md`
+- `/jobs/03-junior-backend-developer-rea.md`
+- `/jobs/04-bi-developer-cba.md`
+- `/jobs/05-fullstack-developer-buildkite.md`
+
+---
+
+## Technical Implementation
+
+### Simulation Pipeline
+1. Parse job descriptions from `/jobs` folder
+2. Generate interview questions using LLM (5 categories)
+3. Retrieve profile context via RAG (Upstash Vector)
+4. Generate Digital Twin answers with persona prompting
+5. Evaluate answers using LLM for scoring and feedback
+6. Aggregate scores and generate recommendations
+
+### RAG Configuration
+- Vector Database: Upstash Vector
+- Embedding Model: Auto-embedding via Upstash
+- LLM: Groq LLaMA 3.1 8B Instant
+- TopK: 6 results per query
+
+### Command to Run
+```bash
+pnpm run-simulation
+```
+
+---
+
+## Conclusion
+
+The Digital Twin interview simulation demonstrates that the AI agent can effectively represent Aniraj Khadgi in professional job interviews. With a 100% pass rate and an average score of 7.8/10, the system successfully:
+
+1. Retrieves relevant profile information for interview questions
+2. Generates authentic, first-person responses
+3. Maintains consistency with the professional profile
+4. Provides specific examples and quantified achievements
+
+The best-fit positions are full-stack and backend developer roles, aligning with the candidate's strongest experience areas.
