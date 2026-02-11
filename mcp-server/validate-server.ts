@@ -58,11 +58,11 @@ async function validateServer() {
       },
     });
 
-    if (result.content && result.content.length > 0) {
+    if (result && Array.isArray(result.content) && result.content.length > 0) {
       const content = result.content[0];
-      if (content.type === "text") {
+      if (content && "type" in content && content.type === "text" && "text" in content) {
         try {
-          const parsed = JSON.parse(content.text);
+          const parsed = JSON.parse(content.text as string);
           console.log("✅ Tool execution successful!\n");
           console.log("📊 Results:");
           console.log(`  Overall Score: ${parsed.overallScore}/10`);
