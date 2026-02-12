@@ -4,6 +4,11 @@
   "installCommand": "npm install",
   "framework": "nextjs",
   "regions": ["sin1"],
+  "env": {
+    "UPSTASH_VECTOR_REST_URL": "@upstash_vector_rest_url",
+    "UPSTASH_VECTOR_REST_TOKEN": "@upstash_vector_rest_token",
+    "GROQ_API_KEY": "@groq_api_key"
+  },
   "headers": [
     {
       "source": "/api/(.*)",
