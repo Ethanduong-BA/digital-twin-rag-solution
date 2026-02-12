@@ -74,6 +74,11 @@ function readJobFile(filename: string): {
   content: string;
 } {
   try {
+    // Validate filename parameter
+    if (!filename || typeof filename !== "string" || filename.trim() === "") {
+      throw new Error(`Invalid job filename: received empty or invalid string`);
+    }
+
     // Get absolute path from compiled dist/server.js location
     // __dirname will be `/path/to/mcp-server/dist`
     // We need to go to `/path/to/mcp-server` then to `/path/to` (project root)
@@ -82,6 +87,7 @@ function readJobFile(filename: string): {
     const jobsDir = path.join(projectRoot, "jobs");
     const filePath = path.join(jobsDir, filename);
 
+    console.error(`[DEBUG] readJobFile - filename: "${filename}"`);
     console.error(`[DEBUG] __dirname: ${__dirname}`);
     console.error(`[DEBUG] mcpServerDir: ${mcpServerDir}`);
     console.error(`[DEBUG] projectRoot: ${projectRoot}`);

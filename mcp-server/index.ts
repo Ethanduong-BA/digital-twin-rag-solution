@@ -49,7 +49,20 @@ server.setRequestHandler(
     const { name, arguments: args } = params;
 
     if (name === "compare_profile_with_job") {
-      const jobFilename = args.job_filename as string;
+      // Validate job_filename parameter
+      const jobFilename = args?.job_filename;
+      
+      if (!jobFilename || typeof jobFilename !== "string" || jobFilename.trim() === "") {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `Error: Missing or invalid job_filename parameter. Expected a non-empty string.`,
+            },
+          ],
+          isError: true,
+        };
+      }
 
       try {
         const result = await handleCompareProfileWithJob(jobFilename);
