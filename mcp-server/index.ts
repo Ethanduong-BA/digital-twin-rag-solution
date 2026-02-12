@@ -135,12 +135,20 @@ server.setRequestHandler(
 // ============================================
 
 async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("Digital Twin MCP Server started");
+  try {
+    console.error("[MCP] Initializing server...");
+    const transport = new StdioServerTransport();
+    console.error("[MCP] Transport created");
+    
+    await server.connect(transport);
+    console.error("[MCP] Server connected successfully");
+  } catch (error) {
+    console.error("[MCP] Server initialization error:", error);
+    process.exit(1);
+  }
 }
 
 main().catch((error) => {
-  console.error("Server error:", error);
+  console.error("[MCP] Unhandled main error:", error);
   process.exit(1);
 });
