@@ -1,9 +1,18 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "env": [
-    "UPSTASH_VECTOR_REST_URL",
-    "UPSTASH_VECTOR_REST_TOKEN",
-    "GROQ_API_KEY"
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["sin1"],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-Requested-With, Content-Type, Authorization" }
+      ]
+    }
   ]
 }
