@@ -45,41 +45,84 @@ server.setRequestHandler(ListToolsRequestSchema, async (_request: any) => {
 server.setRequestHandler(
   CallToolRequestSchema,
   async (request: any) => {
-    const params = request.params;
-    const { name, arguments: args } = params;
+    try {
+      const params = request.params;
+      const { name, arguments: args } = params;
 
-    if (name === "compare_profile_with_job") {
-      const jobFilename = args.job_filename as string;
+      console.error(`[MCP] Tool called: ${name}`);
+      console.error(`[MCP] Arguments type: ${typeof args}`);
+      console.error(`[MCP] Arguments:`, JSON.stringify(args));
 
-      try {
-        const result = await handleCompareProfileWithJob(jobFilename);
+      if (name === "compare_profile_with_job") {
+        // Validate arguments exist
+        if (!args || typeof args !== "object") {
+          const errorMsg = `Missing arguments object`;
+          console.error(`[MCP] Validation failed: ${errorMsg}`);
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `Error: ${errorMsg}. Expected: { job_filename: "filename.md" }`,
+              },
+            ],
+            isError: true,
+          };
+        }
 
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
-            },
-          ],
-          isError: true,
-        };
+        // Validate job_filename parameter
+        const jobFilename = args.job_filename;
+        
+        console.error(`[MCP] jobFilename value: "${jobFilename}"`);
+        console.error(`[MCP] jobFilename type: ${typeof jobFilename}`);
+        
+        if (!jobFilename || typeof jobFilename !== "string" || jobFilename.trim() === "") {
+          const errorMsg = `job_filename parameter is required and must be a non-empty string. Received: "${jobFilename}" (type: ${typeof jobFilename})`;
+          console.error(`[MCP] Validation failed: ${errorMsg}`);
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `Error: ${errorMsg}. Example: "week3-job01-the-star-entertainment-group-data-analyst.md"`,
+              },
+            ],
+            isError: true,
+          };
+        }
+
+        try {
+          const result = await handleCompareProfileWithJob(jobFilename);
+
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: JSON.stringify(result, null, 2),
+              },
+            ],
+          };
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : String(error);
+          console.error(`[MCP] Tool execution error:`, errorMsg);
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `Error: ${errorMsg}`,
+              },
+            ],
+            isError: true,
+          };
+        }
       }
+    } catch (error) {
+      console.error("[MCP] Handler error:", error);
     }
 
     return {
       content: [
         {
           type: "text" as const,
-          text: `Unknown tool: ${name}`,
+          text: `Unknown tool`,
         },
       ],
       isError: true,
@@ -92,12 +135,20 @@ server.setRequestHandler(
 // ============================================
 
 async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("Digital Twin MCP Server started");
+  try {
+    console.error("[MCP] Initializing server...");
+    const transport = new StdioServerTransport();
+    console.error("[MCP] Transport created");
+    
+    await server.connect(transport);
+    console.error("[MCP] Server connected successfully");
+  } catch (error) {
+    console.error("[MCP] Server initialization error:", error);
+    process.exit(1);
+  }
 }
 
 main().catch((error) => {
-  console.error("Server error:", error);
+  console.error("[MCP] Unhandled main error:", error);
   process.exit(1);
 });

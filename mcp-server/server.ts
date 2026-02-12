@@ -74,27 +74,45 @@ function readJobFile(filename: string): {
   content: string;
 } {
   try {
+    // Validate filename parameter with detailed error
+    console.error(`[readJobFile] Input filename: "${filename}" (type: ${typeof filename})`);
+    
+    if (!filename) {
+      throw new Error(`filename parameter is null or undefined`);
+    }
+    
+    if (typeof filename !== "string") {
+      throw new Error(`filename must be a string, got ${typeof filename}`);
+    }
+    
+    const trimmed = filename.trim();
+    if (trimmed === "") {
+      throw new Error(`filename cannot be an empty string`);
+    }
+
     // Get absolute path from compiled dist/server.js location
     // __dirname will be `/path/to/mcp-server/dist`
     // We need to go to `/path/to/mcp-server` then to `/path/to` (project root)
     const mcpServerDir = path.dirname(__dirname); // /mcp-server
     const projectRoot = path.dirname(mcpServerDir); // /digital-twin-rag-solution
     const jobsDir = path.join(projectRoot, "jobs");
-    const filePath = path.join(jobsDir, filename);
+    const filePath = path.join(jobsDir, trimmed);
 
-    console.error(`[DEBUG] __dirname: ${__dirname}`);
-    console.error(`[DEBUG] mcpServerDir: ${mcpServerDir}`);
-    console.error(`[DEBUG] projectRoot: ${projectRoot}`);
-    console.error(`[DEBUG] jobsDir: ${jobsDir}`);
-    console.error(`[DEBUG] filePath: ${filePath}`);
-    console.error(`[DEBUG] exists: ${fs.existsSync(filePath)}`);
+    // Uncomment for debugging
+    // console.error(`[DEBUG] readJobFile - filename: "${filename}"`);
+    // console.error(`[DEBUG] __dirname: ${__dirname}`);
+    // console.error(`[DEBUG] mcpServerDir: ${mcpServerDir}`);
+    // console.error(`[DEBUG] projectRoot: ${projectRoot}`);
+    // console.error(`[DEBUG] jobsDir: ${jobsDir}`);
+    // console.error(`[DEBUG] filePath: ${filePath}`);
+    // console.error(`[DEBUG] exists: ${fs.existsSync(filePath)}`);
 
     if (!fs.existsSync(filePath)) {
       throw new Error(`Job file not found at: ${filePath}`);
     }
 
     const stat = fs.statSync(filePath);
-    console.error(`[DEBUG] stat.isFile(): ${stat.isFile()}, stat.isDirectory(): ${stat.isDirectory()}`);
+    // console.error(`[DEBUG] stat.isFile(): ${stat.isFile()}, stat.isDirectory(): ${stat.isDirectory()}`);
     
     if (!stat.isFile()) {
       throw new Error(`Job path is not a file: ${filePath} (isDirectory: ${stat.isDirectory()})`);
@@ -132,12 +150,13 @@ function readUserProfile(): string {
       "my-profile.md"
     );
 
-    console.error(`[DEBUG] readUserProfile - projectRoot: ${projectRoot}`);
-    console.error(`[DEBUG] profilePath: ${profilePath}, exists: ${fs.existsSync(profilePath)}`);
+    // Uncomment for debugging
+    // console.error(`[DEBUG] readUserProfile - projectRoot: ${projectRoot}`);
+    // console.error(`[DEBUG] profilePath: ${profilePath}, exists: ${fs.existsSync(profilePath)}`);
 
     if (fs.existsSync(profilePath)) {
       const stat = fs.statSync(profilePath);
-      console.error(`[DEBUG] profilePath stat - isFile: ${stat.isFile()}, isDirectory: ${stat.isDirectory()}`);
+      // console.error(`[DEBUG] profilePath stat - isFile: ${stat.isFile()}, isDirectory: ${stat.isDirectory()}`);
       if (stat.isFile()) {
         return fs.readFileSync(profilePath, "utf-8");
       }
@@ -151,11 +170,11 @@ function readUserProfile(): string {
       "profile.json"
     );
 
-    console.error(`[DEBUG] jsonProfilePath: ${jsonProfilePath}, exists: ${fs.existsSync(jsonProfilePath)}`);
+    // console.error(`[DEBUG] jsonProfilePath: ${jsonProfilePath}, exists: ${fs.existsSync(jsonProfilePath)}`);
 
     if (fs.existsSync(jsonProfilePath)) {
       const stat = fs.statSync(jsonProfilePath);
-      console.error(`[DEBUG] jsonProfilePath stat - isFile: ${stat.isFile()}, isDirectory: ${stat.isDirectory()}`);
+      // console.error(`[DEBUG] jsonProfilePath stat - isFile: ${stat.isFile()}, isDirectory: ${stat.isDirectory()}`);
       
       if (!stat.isFile()) {
         throw new Error(`Profile path is not a file: ${jsonProfilePath}`);
