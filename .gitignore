@@ -35,3 +35,8 @@ docs/test-results/*.md
 
 # interview simulation results (regenerate with: npm run run-simulation)
 /interview/*-result.md
+
+# personal submission files
+*-aniraj.txt
+*-aniraj.png
+*-aniraj.pdf

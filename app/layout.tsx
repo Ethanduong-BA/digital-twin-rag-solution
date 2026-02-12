@@ -8,8 +8,8 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Food RAG - AI-Powered Food Discovery",
-  description: "Discover food insights powered by AI and vector search technology",
+  title: "Digital Twin - AI Interview Agent",
+  description: "An AI-powered Digital Twin that represents you in professional job interviews using RAG",
   generator: "v0.app",
   icons: {
     icon: [
