@@ -87,20 +87,21 @@ function readJobFile(filename: string): {
     const jobsDir = path.join(projectRoot, "jobs");
     const filePath = path.join(jobsDir, filename);
 
-    console.error(`[DEBUG] readJobFile - filename: "${filename}"`);
-    console.error(`[DEBUG] __dirname: ${__dirname}`);
-    console.error(`[DEBUG] mcpServerDir: ${mcpServerDir}`);
-    console.error(`[DEBUG] projectRoot: ${projectRoot}`);
-    console.error(`[DEBUG] jobsDir: ${jobsDir}`);
-    console.error(`[DEBUG] filePath: ${filePath}`);
-    console.error(`[DEBUG] exists: ${fs.existsSync(filePath)}`);
+    // Uncomment for debugging
+    // console.error(`[DEBUG] readJobFile - filename: "${filename}"`);
+    // console.error(`[DEBUG] __dirname: ${__dirname}`);
+    // console.error(`[DEBUG] mcpServerDir: ${mcpServerDir}`);
+    // console.error(`[DEBUG] projectRoot: ${projectRoot}`);
+    // console.error(`[DEBUG] jobsDir: ${jobsDir}`);
+    // console.error(`[DEBUG] filePath: ${filePath}`);
+    // console.error(`[DEBUG] exists: ${fs.existsSync(filePath)}`);
 
     if (!fs.existsSync(filePath)) {
       throw new Error(`Job file not found at: ${filePath}`);
     }
 
     const stat = fs.statSync(filePath);
-    console.error(`[DEBUG] stat.isFile(): ${stat.isFile()}, stat.isDirectory(): ${stat.isDirectory()}`);
+    // console.error(`[DEBUG] stat.isFile(): ${stat.isFile()}, stat.isDirectory(): ${stat.isDirectory()}`);
     
     if (!stat.isFile()) {
       throw new Error(`Job path is not a file: ${filePath} (isDirectory: ${stat.isDirectory()})`);
@@ -138,12 +139,13 @@ function readUserProfile(): string {
       "my-profile.md"
     );
 
-    console.error(`[DEBUG] readUserProfile - projectRoot: ${projectRoot}`);
-    console.error(`[DEBUG] profilePath: ${profilePath}, exists: ${fs.existsSync(profilePath)}`);
+    // Uncomment for debugging
+    // console.error(`[DEBUG] readUserProfile - projectRoot: ${projectRoot}`);
+    // console.error(`[DEBUG] profilePath: ${profilePath}, exists: ${fs.existsSync(profilePath)}`);
 
     if (fs.existsSync(profilePath)) {
       const stat = fs.statSync(profilePath);
-      console.error(`[DEBUG] profilePath stat - isFile: ${stat.isFile()}, isDirectory: ${stat.isDirectory()}`);
+      // console.error(`[DEBUG] profilePath stat - isFile: ${stat.isFile()}, isDirectory: ${stat.isDirectory()}`);
       if (stat.isFile()) {
         return fs.readFileSync(profilePath, "utf-8");
       }
@@ -157,11 +159,11 @@ function readUserProfile(): string {
       "profile.json"
     );
 
-    console.error(`[DEBUG] jsonProfilePath: ${jsonProfilePath}, exists: ${fs.existsSync(jsonProfilePath)}`);
+    // console.error(`[DEBUG] jsonProfilePath: ${jsonProfilePath}, exists: ${fs.existsSync(jsonProfilePath)}`);
 
     if (fs.existsSync(jsonProfilePath)) {
       const stat = fs.statSync(jsonProfilePath);
-      console.error(`[DEBUG] jsonProfilePath stat - isFile: ${stat.isFile()}, isDirectory: ${stat.isDirectory()}`);
+      // console.error(`[DEBUG] jsonProfilePath stat - isFile: ${stat.isFile()}, isDirectory: ${stat.isDirectory()}`);
       
       if (!stat.isFile()) {
         throw new Error(`Profile path is not a file: ${jsonProfilePath}`);
