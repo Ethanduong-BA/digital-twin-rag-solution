@@ -1,76 +1,79 @@
-import { useEffect, useState } from 'react';
+import { useState, useRef, useEffect } from "react";
+import { Send, Bot, User } from "lucide-react";
 
 export default function Home() {
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [messages, setMessages] = useState([
+    { role: "assistant", content: "Hello! I am the Digital Twin. Ask me anything about my professional background." }
+  ]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const compareProfile = async (jobFilename: string) => {
-    setLoading(true);
-    setError(null);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const userMessage = { role: "user", content: input };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
     try {
-      // Call MCP server or API endpoint
-      const response = await fetch('/api/compare', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ job_filename: jobFilename }),
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input }),
       });
       
-      if (!response.ok) {
-        throw new Error('Failed to compare profile with job');
-      }
-      
       const data = await response.json();
-      setResult(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+    } catch (error) {
+      console.error("Error:", error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial' }}>
-      <h1>Digital Twin - RAG Interface</h1>
-      
-      <div>
-        <h2>Profile vs Job Comparison</h2>
-        <button 
-          onClick={() => compareProfile('week3-job01-the-star-entertainment-group-data-analyst.md')}
-          disabled={loading}
-        >
-          {loading ? 'Comparing...' : 'Compare with Job 01'}
-        </button>
+    <div className="flex flex-col h-screen bg-gray-50 text-gray-800 font-sans">
+      <header className="flex items-center justify-between px-6 py-4 bg-white shadow-sm sticky top-0 z-10">
+        <h1 className="text-xl font-bold text-gray-900 mx-auto">Digital Twin AI</h1>
+      </header>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-6 max-w-3xl mx-auto w-full">
+        {messages.map((msg, index) => (
+          <div key={index} className={`flex gap-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === "user" ? "bg-blue-600" : "bg-purple-600"}`}>
+              {msg.role === "user" ? <User size={16} className="text-white" /> : <Bot size={16} className="text-white" />}
+            </div>
+            <div className={`p-4 rounded-2xl max-w-[80%] leading-relaxed shadow-sm ${msg.role === "user" ? "bg-white border border-gray-200 text-gray-900" : "bg-white text-gray-800"}`}>
+              {msg.content}
+            </div>
+          </div>
+        ))}
+        {isLoading && <div className="text-center text-sm text-gray-400">Thinking...</div>}
+        <div ref={messagesEndRef} />
       </div>
 
-      {error && (
-        <div style={{ color: 'red', marginTop: '10px' }}>
-          Error: {error}
-        </div>
-      )}
-
-      {result && (
-        <div style={{ marginTop: '20px', border: '1px solid #ccc', padding: '10px' }}>
-          <h3>{result.jobTitle} at {result.company}</h3>
-          <p>Overall Score: {result.overallScore}/10 ({result.matchPercentage}% match)</p>
-          
-          <h4>Matching Skills ({result.matchPoints?.length || 0})</h4>
-          <ul>
-            {result.matchPoints?.map((skill: any, i: number) => (
-              <li key={i}>{skill.skill} ({skill.proficiency})</li>
-            ))}
-          </ul>
-
-          <h4>Skill Gaps ({result.gapPoints?.length || 0})</h4>
-          <ul>
-            {result.gapPoints?.map((gap: any, i: number) => (
-              <li key={i}>{gap.skill} - {gap.importance}</li>
-            ))}
-          </ul>
-
-          <p><strong>Recommendation:</strong> {result.recommendation}</p>
-        </div>
-      )}
+      <div className="p-4 bg-white/80 backdrop-blur-md border-t border-gray-100 sticky bottom-0">
+        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative flex items-center shadow-lg rounded-full bg-white border border-gray-200 p-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask me anything..."
+            className="flex-1 pl-6 pr-12 py-3 bg-transparent outline-none text-gray-700"
+            disabled={isLoading}
+          />
+          <button type="submit" disabled={isLoading} className="p-3 bg-gray-900 rounded-full hover:bg-black transition-colors">
+            <Send size={18} className="text-white" />
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
