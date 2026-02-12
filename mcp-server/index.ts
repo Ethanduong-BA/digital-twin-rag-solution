@@ -50,24 +50,39 @@ server.setRequestHandler(
       const { name, arguments: args } = params;
 
       console.error(`[MCP] Tool called: ${name}`);
+      console.error(`[MCP] Arguments type: ${typeof args}`);
       console.error(`[MCP] Arguments:`, JSON.stringify(args));
 
       if (name === "compare_profile_with_job") {
-        // Validate job_filename parameter
-        const jobFilename = args?.job_filename;
-        
-        console.error(`[MCP] jobFilename value: "${jobFilename}"`);
-        console.error(`[MCP] jobFilename type: ${typeof jobFilename}`);
-        console.error(`[MCP] jobFilename truthy: ${!!jobFilename}`);
-        
-        if (!jobFilename || typeof jobFilename !== "string" || jobFilename.trim() === "") {
-          const errorMsg = `Missing or invalid job_filename parameter. Received: "${jobFilename}" (type: ${typeof jobFilename})`;
+        // Validate arguments exist
+        if (!args || typeof args !== "object") {
+          const errorMsg = `Missing arguments object`;
           console.error(`[MCP] Validation failed: ${errorMsg}`);
           return {
             content: [
               {
                 type: "text" as const,
-                text: `Error: ${errorMsg}`,
+                text: `Error: ${errorMsg}. Expected: { job_filename: "filename.md" }`,
+              },
+            ],
+            isError: true,
+          };
+        }
+
+        // Validate job_filename parameter
+        const jobFilename = args.job_filename;
+        
+        console.error(`[MCP] jobFilename value: "${jobFilename}"`);
+        console.error(`[MCP] jobFilename type: ${typeof jobFilename}`);
+        
+        if (!jobFilename || typeof jobFilename !== "string" || jobFilename.trim() === "") {
+          const errorMsg = `job_filename parameter is required and must be a non-empty string. Received: "${jobFilename}" (type: ${typeof jobFilename})`;
+          console.error(`[MCP] Validation failed: ${errorMsg}`);
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `Error: ${errorMsg}. Example: "week3-job01-the-star-entertainment-group-data-analyst.md"`,
               },
             ],
             isError: true,
@@ -86,11 +101,13 @@ server.setRequestHandler(
             ],
           };
         } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : String(error);
+          console.error(`[MCP] Tool execution error:`, errorMsg);
           return {
             content: [
               {
                 type: "text" as const,
-                text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                text: `Error: ${errorMsg}`,
               },
             ],
             isError: true,

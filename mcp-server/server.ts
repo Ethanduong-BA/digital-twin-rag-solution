@@ -74,9 +74,20 @@ function readJobFile(filename: string): {
   content: string;
 } {
   try {
-    // Validate filename parameter
-    if (!filename || typeof filename !== "string" || filename.trim() === "") {
-      throw new Error(`Invalid job filename: received empty or invalid string`);
+    // Validate filename parameter with detailed error
+    console.error(`[readJobFile] Input filename: "${filename}" (type: ${typeof filename})`);
+    
+    if (!filename) {
+      throw new Error(`filename parameter is null or undefined`);
+    }
+    
+    if (typeof filename !== "string") {
+      throw new Error(`filename must be a string, got ${typeof filename}`);
+    }
+    
+    const trimmed = filename.trim();
+    if (trimmed === "") {
+      throw new Error(`filename cannot be an empty string`);
     }
 
     // Get absolute path from compiled dist/server.js location
@@ -85,7 +96,7 @@ function readJobFile(filename: string): {
     const mcpServerDir = path.dirname(__dirname); // /mcp-server
     const projectRoot = path.dirname(mcpServerDir); // /digital-twin-rag-solution
     const jobsDir = path.join(projectRoot, "jobs");
-    const filePath = path.join(jobsDir, filename);
+    const filePath = path.join(jobsDir, trimmed);
 
     // Uncomment for debugging
     // console.error(`[DEBUG] readJobFile - filename: "${filename}"`);
