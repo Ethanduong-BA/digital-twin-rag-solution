@@ -152,9 +152,9 @@ export function InterviewChat({ ownerName, ownerFirstName }: InterviewChatProps)
   }
 
   return (
-    <div className="h-full flex flex-col max-w-3xl mx-auto">
+    <div className="chat-window h-full flex flex-col max-w-3xl mx-auto">
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="chat-messages flex-1 overflow-y-auto px-4 py-6">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-6">
@@ -188,7 +188,7 @@ export function InterviewChat({ ownerName, ownerFirstName }: InterviewChatProps)
             {messages.map((message) => {
               const isAssistant = message.role === "assistant"
               return (
-                <div key={message.id} className={isAssistant ? "" : "flex justify-end"}>
+                <div key={message.id} className={`message-bubble ${isAssistant ? "ai" : "user"}`}>
                   {isAssistant ? (
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -272,10 +272,10 @@ export function InterviewChat({ ownerName, ownerFirstName }: InterviewChatProps)
       </div>
 
       {/* Input Area */}
-      <div className="shrink-0 px-4 pb-4">
+      <div className="chat-input shrink-0 px-4 pb-4">
         <div className="relative max-w-3xl mx-auto">
           <form onSubmit={handleSubmit}>
-            <div className="relative rounded-2xl border bg-muted/50 focus-within:ring-2 focus-within:ring-ring">
+            <div className="relative rounded-2xl border bg-muted/50 focus-within:ring-2 focus-within:ring-ring shadow-sm">
               {/* Expand button - top right */}
               {(showExpandButton || isExpanded) && (
                 <Button
