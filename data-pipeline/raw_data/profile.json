@@ -1,0 +1,221 @@
+{
+  "personal_info": {
+    "name": "Khoa (Ethan) Duong",
+    "role": "Junior Business Analyst | UX/UI Designer",
+    "contact": {
+      "email": "ethanduong59@gmail.com",
+      "phone": "0417.602.008",
+      "linkedin": "https://www.linkedin.com/in/khoa-duong-741545229/",
+      "portfolio": "https://www.behance.net/khoadnggg"
+    },
+    "location": "Sydney, Australia (Current)",
+    "career_objective": "I have over 3 years of experience in UX/UI Design and am currently pursuing a Master of Business Analytics. My goal is to become an expert in combining design and data analysis to help businesses develop products based on deep user behavior insights and real data."
+  },
+  "education": [
+    {
+      "degree": "Master of Business Analytics",
+      "institution": "Victoria University - Sydney, Australia",
+      "duration": "09/2024 - Expected 12/2026"
+    },
+    {
+      "degree": "Bachelor of F&B Management",
+      "institution": "University of Finance - Marketing - HCMC, Vietnam",
+      "duration": "09/2018 - 05/2023"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Freelance",
+      "position": "UX/UI Designer | Product Designer",
+      "duration": "05/2023 - Present",
+      "key_achievements": [
+        "Designed 8+ high-fidelity digital products including web and mobile applications",
+        "Reduced client project timelines by 20% through optimized design workflows",
+        "Maintained 95%+ client satisfaction rate with repeat business from 60% of clients"
+      ],
+      "star_points": [
+        "S: Diverse clients from fintech, e-commerce, and SaaS sectors requiring high-quality mobile apps and web interfaces with complex user experience needs and tight delivery deadlines.",
+        "T: Responsible for the end-to-end product design process (discovery, research, wireframing, prototyping, high-fidelity design) focusing on usability, conversion optimization, and accessibility standards.",
+        "A: Led UX consultations with stakeholders, conducted user research and competitive analysis, created comprehensive design systems, user flows, journey maps, and interactive prototypes in Figma.",
+        "R: Established strong market reputation through high-prestige deliverables; maintained stable, long-term relationships with 15+ clients and generated consistent revenue growth."
+      ]
+    },
+    {
+      "company": "DEDE Lab (Remote)",
+      "position": "Lead UX/UI Designer",
+      "duration": "12/2023 - 07/2025",
+      "key_achievements": [
+        "Designed and implemented comprehensive design system reducing design-to-development time by 30%",
+        "Led UX research initiatives that improved product engagement metrics by 25%",
+        "Managed design projects across 5+ product features simultaneously"
+      ],
+      "star_points": [
+        "S: High-growth SaaS company needed to optimize complex product journeys, establish visual consistency, and scale design operations while maintaining quality and cross-team collaboration.",
+        "T: Designed responsive landing pages (conversion-focused), built shared design system with 100+ components, established design processes and documentation for team scalability.",
+        "A: Conducted comprehensive UX research including user interviews, usability testing, and A/B testing; collaborated with product, engineering, and marketing teams; created design specifications and handoff documentation; mentored junior designers.",
+        "R: Became primary design resource for product team; earned high trust from leadership and customers; design system adoption rate reached 95% across all products; contributed to 40% increase in customer satisfaction scores."
+      ]
+    },
+    {
+      "company": "Unicloud Group (HCMC, Vietnam)",
+      "position": "UX/UI Designer | Design Consultant",
+      "duration": "04/2022 - 12/2022",
+      "key_achievements": [
+        "Designed 6 complex enterprise applications with focus on usability and efficiency",
+        "Trained and mentored 3 junior designers, all contributing to live projects",
+        "Achieved 100% on-time project delivery across all assignments"
+      ],
+      "star_points": [
+        "S: Enterprise software development company working on logic-heavy applications and business platforms required interfaces that balanced complex functionality with excellent user experience for non-technical end users.",
+        "T: Designed complex logic interfaces for enterprise applications, coordinated closely with developers for accurate implementation, established design best practices and documentation standards.",
+        "A: Acted as design consultant for stakeholder meetings and requirements gathering; guided 3 interns on design tools (Figma, Adobe Creative Suite), design thinking methodologies, user research techniques, and feedback incorporation; created reusable UI components and patterns.",
+        "R: Successfully launched 6 applications with zero critical UX issues in production; all interns gained hands-on experience contributing to real client deliverables; established foundational design practices adopted by the team post-engagement."
+      ]
+    }
+  ],
+  "technical_skills": {
+    "data_analysis": ["Python", "Power BI", "Excel", "SQL", "Predictive Modeling", "Data Visualization", "Statistical Analysis"],
+    "design_ux_ui": ["Figma", "Adobe XD", "Adobe Illustrator", "Adobe Photoshop", "Prototyping", "User Research", "Usability Testing", "Accessibility (WCAG)", "Interaction Design", "Design Systems"],
+    "business_analysis": ["Requirements Analysis", "Stakeholder Communication", "Project Management", "User Journey Mapping", "Competitive Analysis", "A/B Testing"],
+    "tools_platforms": ["Figma (Advanced)", "Adobe Creative Suite", "Jira", "Asana", "Notion", "Miro", "Google Analytics"],
+    "soft_skills": ["Leadership", "Team Mentoring", "Cross-functional Collaboration", "Communication", "Problem Solving", "Attention to Detail"],
+    "languages": ["English (Fluent - Professional)", "Vietnamese (Native)"]
+  },
+  "projects": [
+    "Landing Page",
+    "Heineken Website",
+    "Crypto Social App Landing Page",
+    "Budweiser website",
+    "Queue System",
+    "Ez pay",
+    "Digital Government Landing page",
+    "eKYC (App and Website)",
+    "eSignature Landing page"
+  ],
+  "projects_detailed": [
+    {
+      "name": "Landing Page",
+      "client": "Personal Project",
+      "description": "Modern landing page design focusing on user engagement and conversion optimization.",
+      "technologies": ["Figma", "UI/UX Design"],
+      "metrics": {
+        "views": 13,
+        "appreciations": 0
+      }
+    },
+    {
+      "name": "Heineken Website",
+      "client": "HEINEKEN Vietnam",
+      "description": "Website redesign with focus on modern UI, brand consistency, and user engagement for product catalog and event promotion.",
+      "technologies": ["Figma", "Web Design", "UI/UX", "Graphic Design"],
+      "metrics": {
+        "views": 34,
+        "appreciations": 2,
+        "comments": 1
+      }
+    },
+    {
+      "name": "Crypto Social App Landing Page",
+      "client": "Crypto Startup",
+      "description": "Landing page design for a social cryptocurrency platform with focus on modern aesthetics and user onboarding.",
+      "technologies": ["Figma", "Web Design"],
+      "metrics": {
+        "views": 8,
+        "appreciations": 1
+      }
+    },
+    {
+      "name": "Budweiser website",
+      "client": "BUDVAR",
+      "description": "Brand-focused website design maintaining visual identity and user experience standards for beverage e-commerce.",
+      "technologies": ["Figma", "Web Design", "Brand Design"],
+      "metrics": {
+        "views": 11,
+        "appreciations": 2
+      }
+    },
+    {
+      "name": "Queue System",
+      "client": "Healthcare Provider",
+      "description": "Patient queue management interface for healthcare facilities including real-time updates and staff dashboard.",
+      "technologies": ["Figma", "UI/UX Design", "Healthcare UX"],
+      "metrics": {
+        "views": 182,
+        "appreciations": 1
+      }
+    },
+    {
+      "name": "Ez pay",
+      "client": "FinTech Company",
+      "description": "Mobile payment interface design enabling seamless transaction processing and user-friendly payment flows.",
+      "technologies": ["Figma", "Mobile Design", "Payment UI"],
+      "metrics": {
+        "views": 90,
+        "appreciations": 0
+      }
+    },
+    {
+      "name": "Digital Government Landing page",
+      "client": "Government Agency",
+      "description": "Landing page for digital government services platform promoting citizen engagement and service accessibility.",
+      "technologies": ["Figma", "Web Design", "UI/UX"],
+      "metrics": {
+        "views": 103,
+        "appreciations": 2
+      }
+    },
+    {
+      "name": "eKYC (App and Website)",
+      "client": "Unicloud Group",
+      "description": "Electronic Know-Your-Customer verification platform combining mobile app and web interface for fintech applications.",
+      "technologies": ["Figma", "App Design", "Web Design", "Compliance UX"],
+      "metrics": {
+        "views": 139,
+        "appreciations": 1
+      }
+    },
+    {
+      "name": "eSignature Landing page",
+      "client": "Legal Tech Startup",
+      "description": "Secure document signing platform landing page with focus on trust signals, security, and compliance features.",
+      "technologies": ["Figma", "Web Design", "Security UX"],
+      "metrics": {
+        "views": 95,
+        "appreciations": 0
+      }
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Master of Business Analytics",
+      "issuer": "Victoria University",
+      "status": "In Progress",
+      "expected_completion": "12/2026",
+      "focus_areas": ["Data Analysis", "Business Intelligence", "Predictive Modeling", "Data Visualization"]
+    },
+    {
+      "name": "User Experience (UX) Design Professional",
+      "issuer": "Interaction Design Foundation",
+      "year": "2022",
+      "description": "Comprehensive certification covering UX research, design thinking, prototyping, and usability testing methodologies"
+    },
+    {
+      "name": "Figma Advanced Design Course",
+      "issuer": "Design + Code",
+      "year": "2023",
+      "description": "Advanced Figma skills including design systems, component architecture, and collaborative design workflows"
+    },
+    {
+      "name": "Data Analysis with Python & Power BI",
+      "issuer": "Udemy",
+      "year": "2024",
+      "description": "Python programming for data analysis, Power BI dashboard creation, and business intelligence reporting"
+    },
+    {
+      "name": "Accessibility in UX Design (WCAG 2.1)",
+      "issuer": "Nielsen Norman Group",
+      "year": "2023",
+      "description": "Web Content Accessibility Guidelines implementation, inclusive design principles, and accessibility testing"
+    }
+  ]
+}

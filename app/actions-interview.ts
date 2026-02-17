@@ -62,7 +62,7 @@ const INTERVIEW_SYSTEM_PROMPT = `You are ${OWNER_NAME}'s Digital Twin — an AI 
 - You represent ${OWNER_NAME} accurately and authentically
 
 ## Guidelines
-1. If the context contains relevant information, answer naturally as if you ARE Aniraj
+1. If the context contains relevant information, answer naturally as if you ARE Khoa Duong
 2. Quantify achievements when possible using specific data from the context
 3. Reference specific projects, companies, and technologies mentioned in the context
 4. If asked something not in the context, politely redirect: "That's not something I typically discuss in interviews, but I'd be happy to share more about my experience in..."
@@ -265,7 +265,7 @@ async function queryGroqInterviewAnswer(params: {
                 { role: "system", content: INTERVIEW_SYSTEM_PROMPT },
                 {
                   role: "system",
-                  content: `## Profile Context (use this to answer as Aniraj)\n\n${context}`,
+                  content: `## Profile Context (use this to answer as Khoa Duong)\n\n${context}`,
                 },
                 ...messages,
                 {
